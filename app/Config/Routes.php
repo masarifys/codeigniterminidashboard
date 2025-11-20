@@ -44,6 +44,10 @@ $routes->get('auth/gmail-callback', 'GmailAuth::callback');
 // Client routes
 $routes->group('client', function($routes) {
     $routes->get('dashboard', 'Client::dashboard');
+    $routes->get('services', 'Client::services'); // Menu semua layanan
+    $routes->get('invoices', 'Client::invoices'); // Menu invoices
     $routes->get('profile', 'Client::profile');
     $routes->post('profile', 'Client::profile');
+    $routes->get('support', 'Client::support'); // Live support
+    $routes->get('tickets', 'Client::tickets'); // Trouble tickets
 });

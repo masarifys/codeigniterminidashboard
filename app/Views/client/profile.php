@@ -1,67 +1,15 @@
-<?= $this->extend('layouts/base') ?>
+<?= $this->extend('layouts/client_layout') ?>
 
 <?= $this->section('content') ?>
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 sidebar">
-            <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
-                <a href="#" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-                    <span class="fs-5 d-none d-sm-inline">Client Portal</span>
-                </a>
-                <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
-                    <li class="nav-item">
-                        <a href="/client/dashboard" class="nav-link">
-                            <i class="fas fa-tachometer-alt"></i> <span class="ms-1 d-none d-sm-inline">Dashboard</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/client/profile" class="nav-link active">
-                            <i class="fas fa-user"></i> <span class="ms-1 d-none d-sm-inline">Profile</span>
-                        </a>
-                    </li>
-                </ul>
-                <hr>
-                <div class="dropdown pb-4">
-                    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown">
-                        <i class="fas fa-user-circle fa-2x"></i>
-                        <span class="d-none d-sm-inline mx-1"><?= session()->get('full_name') ?></span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-                        <li><a class="dropdown-item" href="/client/profile"><i class="fas fa-user"></i> Profile</a></li>
-                        <li><a class="dropdown-item" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+<!-- Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3 mb-0 text-gray-800">My Profile</h1>
+        <p class="mb-0 text-muted">Manage your personal information</p>
+    </div>
+</div>
 
-        <!-- Main Content -->
-        <div class="col-md-9 col-lg-10 main-content">
-            <div class="container-fluid py-4">
-                <!-- Header -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <h1 class="h3 mb-0 text-gray-800">My Profile</h1>
-                        <p class="mb-0">Manage your personal information</p>
-                    </div>
-                </div>
-
-                <!-- Flash Messages -->
-                <?php if (session()->getFlashdata('success')): ?>
-                    <div class="alert alert-success alert-dismissible fade show">
-                        <i class="fas fa-check-circle"></i> <?= session()->getFlashdata('success') ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                <?php endif; ?>
-
-                <?php if (session()->getFlashdata('error')): ?>
-                    <div class="alert alert-danger alert-dismissible fade show">
-                        <i class="fas fa-exclamation-triangle"></i> <?= session()->getFlashdata('error') ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                <?php endif; ?>
-
-                <!-- Profile Form -->
+<!-- Profile Form -->
                 <div class="row">
                     <div class="col-md-8">
                         <div class="card shadow">
@@ -155,8 +103,4 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
 <?= $this->endSection() ?>
