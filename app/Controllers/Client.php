@@ -214,37 +214,63 @@ class Client extends Controller
     public function payInvoice($id)
     {
         $userId = session()->get('id');
-        $invoice = $this->invoiceModel->find($id);
         
-        // Validate invoice
-        if (!$invoice || $invoice['user_id'] != $userId) {
-            return redirect()->to('/client/invoices')->with('error', 'Invoice not found');
-        }
-        
-        if ($invoice['status'] == 'paid') {
-            return redirect()->to('/client/invoice/' . $id)->with('info', 'Invoice already paid');
-        }
-        
-        // Create payment request to Duitku
-        $duitku = new \App\Libraries\DuitkuPayment();
-        $user = $this->userModel->find($userId);
-        
-        $paymentUrl = $duitku->createInvoice([
-            'merchantOrderId' => $invoice['invoice_number'],
-            'paymentAmount' => $invoice['amount'],
-            'email' => $user['email'],
-            'phoneNumber' => '08123456789',
-            'productDetails' => 'Payment for invoice ' . $invoice['invoice_number'],
-            'merchantUserInfo' => $user['full_name'],
-            'callbackUrl' => base_url('client/payment/callback'),
-            'returnUrl' => base_url('client/invoice/' . $id),
-            'expiryPeriod' => 60
-        ]);
-        
-        if ($paymentUrl) {
-            return redirect()->to($paymentUrl);
-        } else {
-            return redirect()->back()->with('error', 'Failed to create payment. Please try again.');
+        try {
+            $invoice = $this->invoiceModel->find($id);
+            
+            // Validate invoice
+            if (!$invoice || $invoice['user_id'] != $userId) {
+                log_message('warning', "Payment attempt failed: Invoice {$id} not found for user {$userId}");
+                return redirect()->to('/client/invoices')->with('error', 'Invoice not found');
+            }
+            
+            if ($invoice['status'] == 'paid') {
+                log_message('info', "Payment attempt for already paid invoice: {$invoice['invoice_number']}");
+                return redirect()->to('/client/invoice/' . $id)->with('info', 'Invoice already paid');
+            }
+            
+            // Get user and validate email
+            $user = $this->userModel->find($userId);
+            if (!$user || empty($user['email'])) {
+                log_message('error', "Payment failed: User {$userId} has no email address");
+                return redirect()->back()->with('error', 'Your account does not have an email address. Please update your profile first.');
+            }
+            
+            // Validate email format
+            if (!filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
+                log_message('error', "Payment failed: User {$userId} has invalid email: {$user['email']}");
+                return redirect()->back()->with('error', 'Your email address is invalid. Please update your profile first.');
+            }
+            
+            log_message('info', "Creating payment for invoice {$invoice['invoice_number']}, amount: {$invoice['amount']}, user: {$user['email']}");
+            
+            // Create payment request to Duitku
+            $duitku = new \App\Libraries\DuitkuPayment();
+            
+            $paymentUrl = $duitku->createInvoice([
+                'merchantOrderId' => $invoice['invoice_number'],
+                'paymentAmount' => $invoice['amount'],
+                'email' => $user['email'],
+                'phoneNumber' => $user['phone'] ?? '08123456789',
+                'productDetails' => 'Payment for invoice ' . $invoice['invoice_number'],
+                'merchantUserInfo' => $user['full_name'],
+                'callbackUrl' => base_url('client/payment/callback'),
+                'returnUrl' => base_url('client/invoice/' . $id),
+                'expiryPeriod' => 60
+            ]);
+            
+            if ($paymentUrl) {
+                // Update invoice status to pending
+                $this->invoiceModel->update($id, ['status' => 'pending']);
+                log_message('info', "Payment URL created successfully for invoice {$invoice['invoice_number']}");
+                return redirect()->to($paymentUrl);
+            } else {
+                log_message('error', "Failed to create payment URL for invoice {$invoice['invoice_number']}");
+                return redirect()->back()->with('error', 'Failed to create payment. Please contact support if this problem persists.');
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Payment exception: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+            return redirect()->back()->with('error', 'An error occurred while processing your payment. Please try again.');
         }
     }
 
@@ -378,5 +404,25 @@ class Client extends Controller
         $builder->insert($data);
         
         return redirect()->to('/client/service/' . $id)->with('success', 'Cancellation request submitted successfully');
+    }
+
+    public function testDuitku()
+    {
+        // Only allow in development mode
+        if (ENVIRONMENT !== 'development') {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Page not found');
+        }
+        
+        $duitku = new \App\Libraries\DuitkuPayment();
+        $results = $duitku->testConnection();
+        
+        $data = [
+            'title' => 'Duitku Configuration Test',
+            'user' => $this->userModel->find(session()->get('id')),
+            'results' => $results
+        ];
+        
+        // For now, just output as JSON for testing
+        return $this->response->setJSON($results);
     }
 }

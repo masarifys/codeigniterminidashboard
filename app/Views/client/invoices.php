@@ -8,6 +8,35 @@
     </div>
 </div>
 
+<!-- Flash Messages -->
+<?php if (session()->getFlashdata('success')): ?>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle"></i> <?= session()->getFlashdata('success') ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('error')): ?>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle"></i> <?= session()->getFlashdata('error') ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('info')): ?>
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+    <i class="fas fa-info-circle"></i> <?= session()->getFlashdata('info') ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('warning')): ?>
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle"></i> <?= session()->getFlashdata('warning') ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<?php endif; ?>
+
 <!-- Filter Section -->
 <div class="filter-section">
     <form method="GET" action="/client/invoices">
@@ -75,7 +104,7 @@
                             <?= $invoice['paid_date'] ? date('Y-m-d', strtotime($invoice['paid_date'])) : '-' ?>
                         </td>
                         <td>
-                            <?php if ($invoice['status'] === 'unpaid' || $invoice['status'] === 'past_due'): ?>
+                            <?php if ($invoice['status'] === 'unpaid' || $invoice['status'] === 'past_due' || $invoice['status'] === 'pending'): ?>
                             <a href="<?= base_url('client/invoice/' . $invoice['id'] . '/pay') ?>" class="btn btn-sm btn-primary">
                                 <i class="fas fa-credit-card"></i> Pay Now
                             </a>
