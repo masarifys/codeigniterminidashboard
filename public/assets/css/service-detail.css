@@ -1,0 +1,121 @@
+/* Service Detail Page Styles */
+
+.credential-item {
+    margin-bottom: 1rem;
+}
+
+.credential-item .form-label {
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.credential-item .input-group {
+    border-radius: 0.25rem;
+}
+
+.credential-item .form-control {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.credential-item .btn-outline-secondary {
+    border-color: #dee2e6;
+}
+
+.credential-item .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+}
+
+.status-item {
+    padding: 0.5rem 0;
+}
+
+.status-item small {
+    display: block;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.badge-lg {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* List Group Active State */
+.list-group-item-action.active {
+    background-color: #667eea;
+    border-color: #667eea;
+    color: white;
+}
+
+.list-group-item-action:hover {
+    background-color: #f8f9fa;
+}
+
+/* Card Headers */
+.card-header {
+    border-bottom: 2px solid rgba(0,0,0,.125);
+}
+
+.card-header h5 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Action Buttons */
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+/* Modal Customization */
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 2px solid #dee2e6;
+}
+
+/* Status Badge Colors */
+.badge-active {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-suspended {
+    background-color: #dc3545;
+    color: white;
+}
+
+.badge-cancelled {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .col-lg-3, .col-lg-6 {
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Copy Button Success Animation */
+.btn-success {
+    transition: all 0.3s ease;
+}
+
+/* Info Badge in Sidebar */
+.info-badge {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-left: 0.25rem;
+}

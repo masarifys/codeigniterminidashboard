@@ -298,4 +298,85 @@ class Client extends Controller
         
         return $this->response->setJSON(['status' => 'success']);
     }
+
+    public function serviceDetail($id)
+    {
+        $userId = session()->get('id');
+        $service = $this->serviceModel->find($id);
+        
+        // Check if service exists and belongs to logged in user
+        if (!$service || $service['user_id'] != $userId) {
+            return redirect()->to('/client/services')->with('error', 'Service not found');
+        }
+        
+        $data = [
+            'title' => 'Service Detail - ' . $service['product_name'],
+            'user' => $this->userModel->find($userId),
+            'service' => $service
+        ];
+        
+        return view('client/service_detail', $data);
+    }
+
+    public function upgradeService($id)
+    {
+        $userId = session()->get('id');
+        $service = $this->serviceModel->find($id);
+        
+        // Check if service exists and belongs to logged in user
+        if (!$service || $service['user_id'] != $userId) {
+            return redirect()->to('/client/services')->with('error', 'Service not found');
+        }
+        
+        // TODO: Implement upgrade logic
+        return redirect()->to('/client/service/' . $id)->with('info', 'Upgrade feature coming soon');
+    }
+
+    public function renewService($id)
+    {
+        $userId = session()->get('id');
+        $service = $this->serviceModel->find($id);
+        
+        // Check if service exists and belongs to logged in user
+        if (!$service || $service['user_id'] != $userId) {
+            return redirect()->to('/client/services')->with('error', 'Service not found');
+        }
+        
+        // TODO: Implement renew logic - create invoice for renewal
+        return redirect()->to('/client/service/' . $id)->with('info', 'Renewal feature coming soon');
+    }
+
+    public function cancelService($id)
+    {
+        $userId = session()->get('id');
+        $service = $this->serviceModel->find($id);
+        
+        // Check if service exists and belongs to logged in user
+        if (!$service || $service['user_id'] != $userId) {
+            return redirect()->to('/client/services')->with('error', 'Service not found');
+        }
+        
+        // Get cancellation data from POST
+        $reason = $this->request->getPost('reason');
+        $cancellationType = $this->request->getPost('cancellation_type');
+        
+        // Insert into service_cancellations table
+        $db = \Config\Database::connect();
+        $builder = $db->table('service_cancellations');
+        
+        $data = [
+            'service_id' => $id,
+            'user_id' => $userId,
+            'reason' => $reason,
+            'cancellation_type' => $cancellationType,
+            'status' => 'pending',
+            'requested_at' => date('Y-m-d H:i:s'),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        
+        $builder->insert($data);
+        
+        return redirect()->to('/client/service/' . $id)->with('success', 'Cancellation request submitted successfully');
+    }
 }

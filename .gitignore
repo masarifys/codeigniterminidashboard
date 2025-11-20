@@ -4,3 +4,4 @@ app/Config/Email.php
 writable/database.db
 writable/logs/
 writable/session/
+writable/debugbar/
