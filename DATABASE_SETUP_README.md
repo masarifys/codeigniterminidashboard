@@ -112,6 +112,11 @@ php spark db:seed TestDataSeeder
    - Payment gateway transaction tracking
    - Stores transaction ID, gateway, amount, and status
 
+7. **service_cancellations** - Service cancellation requests
+   - Tracks client requests to cancel services
+   - Cancellation type (immediate or end of billing period)
+   - Status tracking (pending, approved, cancelled)
+
 ### Relationships
 
 ```
@@ -119,7 +124,9 @@ users (1) ──── (many) services
 users (1) ──── (many) invoices
 users (1) ──── (many) tickets
 users (1) ──── (many) transactions
+users (1) ──── (many) service_cancellations
 services (1) ──── (many) invoices
+services (1) ──── (many) service_cancellations
 invoices (1) ──── (many) invoice_items
 invoices (1) ──── (many) transactions
 ```
