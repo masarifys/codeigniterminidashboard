@@ -4,6 +4,8 @@
 -- ============================================
 
 -- Drop tables if they exist (in reverse order to handle foreign keys)
+DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS invoice_items;
 DROP TABLE IF EXISTS tickets;
 DROP TABLE IF EXISTS invoices;
 DROP TABLE IF EXISTS services;
@@ -103,6 +105,46 @@ CREATE INDEX idx_tickets_created_at ON tickets(created_at);
 CREATE INDEX idx_tickets_user_status ON tickets(user_id, status);
 
 -- ============================================
+-- Table: invoice_items
+-- Description: Invoice line items for detailed billing
+-- ============================================
+CREATE TABLE invoice_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    invoice_id INTEGER NOT NULL,
+    description TEXT NOT NULL,
+    amount DECIMAL(15,2) NOT NULL,
+    created_at DATETIME DEFAULT NULL,
+    updated_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE INDEX idx_invoice_items_invoice_id ON invoice_items(invoice_id);
+
+-- ============================================
+-- Table: transactions
+-- Description: Payment transaction records
+-- ============================================
+CREATE TABLE transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    invoice_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    transaction_id VARCHAR(255) NOT NULL,
+    gateway VARCHAR(100) NOT NULL,
+    amount DECIMAL(15,2) NOT NULL,
+    transaction_date DATETIME NOT NULL,
+    status TEXT CHECK(status IN ('pending', 'success', 'failed')) NOT NULL DEFAULT 'pending',
+    created_at DATETIME DEFAULT NULL,
+    updated_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE INDEX idx_transactions_invoice_id ON transactions(invoice_id);
+CREATE INDEX idx_transactions_user_id ON transactions(user_id);
+CREATE INDEX idx_transactions_transaction_id ON transactions(transaction_id);
+CREATE INDEX idx_transactions_status ON transactions(status);
+
+-- ============================================
 -- Sample Data (Test Data)
 -- ============================================
 
@@ -133,6 +175,18 @@ VALUES
 (1, 'Question about billing', 'Billing', 'medium', 'answered', datetime('now'), datetime('now')),
 (1, 'Need help with setup', 'Technical Support', 'low', 'closed', datetime('now'), datetime('now'));
 
+-- Insert sample invoice items
+INSERT INTO invoice_items (invoice_id, description, amount, created_at, updated_at) 
+VALUES 
+(1, 'Unlimited L Hosting - Annual Subscription', 1680000.00, datetime('now'), datetime('now')),
+(2, 'VPS Standard - Monthly Fee', 250000.00, datetime('now'), datetime('now')),
+(3, 'Shared Hosting - Quarterly Payment', 150000.00, datetime('now'), datetime('now'));
+
+-- Insert sample transaction (for paid invoice)
+INSERT INTO transactions (invoice_id, user_id, transaction_id, gateway, amount, transaction_date, status, created_at, updated_at) 
+VALUES 
+(3, 1, 'TRX-2025-000003', 'BCA Virtual Account', 150000.00, '2025-10-14 10:30:00', 'success', datetime('now'), datetime('now'));
+
 -- ============================================
 -- Verification Queries
 -- ============================================
@@ -142,7 +196,9 @@ SELECT
     (SELECT COUNT(*) FROM users) AS total_users,
     (SELECT COUNT(*) FROM services) AS total_services,
     (SELECT COUNT(*) FROM invoices) AS total_invoices,
-    (SELECT COUNT(*) FROM tickets) AS total_tickets;
+    (SELECT COUNT(*) FROM tickets) AS total_tickets,
+    (SELECT COUNT(*) FROM invoice_items) AS total_invoice_items,
+    (SELECT COUNT(*) FROM transactions) AS total_transactions;
 
 -- ============================================
 -- Test Login Credentials

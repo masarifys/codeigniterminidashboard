@@ -2,10 +2,12 @@
 
 This guide explains how to set up the database for the Client Dashboard application.
 
+> **Note:** This database setup now includes tables for the Duitku payment gateway integration (`invoice_items` and `transactions`). These tables support detailed invoice tracking and payment transaction management.
+
 ## Files Included
 
-1. **database_setup.sql** - MySQL/MariaDB version
-2. **database_setup_sqlite.sql** - SQLite version
+1. **database_setup.sql** - MySQL/MariaDB version (includes Duitku integration tables)
+2. **database_setup_sqlite.sql** - SQLite version (includes Duitku integration tables)
 
 ## Option 1: Using MySQL/MariaDB (Recommended for Production)
 
@@ -102,13 +104,24 @@ php spark db:seed TestDataSeeder
    - Priority levels (low, medium, high)
    - Status tracking (open, answered, customer_reply, closed)
 
+5. **invoice_items** - Invoice line items (NEW - Duitku Integration)
+   - Detailed breakdown of invoice charges
+   - Description and amount for each item
+   
+6. **transactions** - Payment transaction records (NEW - Duitku Integration)
+   - Payment gateway transaction tracking
+   - Stores transaction ID, gateway, amount, and status
+
 ### Relationships
 
 ```
 users (1) ──── (many) services
 users (1) ──── (many) invoices
 users (1) ──── (many) tickets
+users (1) ──── (many) transactions
 services (1) ──── (many) invoices
+invoices (1) ──── (many) invoice_items
+invoices (1) ──── (many) transactions
 ```
 
 ## Test Data Included
@@ -130,6 +143,14 @@ The SQL files include sample data for testing:
 - INV-2025-0001: Rp 1.680.000,00 - Unpaid
 - INV-2025-0002: Rp 250.000,00 - Past Due
 - INV-2025-0003: Rp 150.000,00 - Paid
+
+### Sample Invoice Items (3 records)
+- Unlimited L Hosting - Annual Subscription: Rp 1.680.000,00
+- VPS Standard - Monthly Fee: Rp 250.000,00
+- Shared Hosting - Quarterly Payment: Rp 150.000,00
+
+### Sample Transactions (1 record)
+- TRX-2025-000003: BCA Virtual Account, Rp 150.000,00 (Success)
 
 ### Sample Tickets (3 records)
 - Server not responding (High priority, Open)

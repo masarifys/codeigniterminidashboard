@@ -46,6 +46,9 @@ $routes->group('client', function($routes) {
     $routes->get('dashboard', 'Client::dashboard');
     $routes->get('services', 'Client::services'); // Menu semua layanan
     $routes->get('invoices', 'Client::invoices'); // Menu invoices
+    $routes->get('invoice/(:num)', 'Client::invoiceDetail/$1');
+    $routes->get('invoice/(:num)/pay', 'Client::payInvoice/$1');
+    $routes->post('payment/callback', 'Client::paymentCallback');
     $routes->get('profile', 'Client::profile');
     $routes->post('profile', 'Client::profile');
     $routes->get('support', 'Client::support'); // Live support
