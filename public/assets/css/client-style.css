@@ -328,3 +328,40 @@
 .info-badge i {
     font-size: 0.7rem;
 }
+
+/* Invoice Detail Styles */
+.invoice-header {
+    border-bottom: 3px solid #667eea;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.invoice-info-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.invoice-items-table tfoot tr {
+    font-weight: 600;
+}
+
+.invoice-items-table .table-active {
+    background-color: #667eea;
+    color: white;
+}
+
+.badge-paid {
+    background-color: #28a745 !important;
+}
+
+.badge-unpaid {
+    background-color: #ffc107 !important;
+    color: #333 !important;
+}
+
+.badge.fs-5 {
+    font-size: 1.25rem !important;
+    font-weight: 600;
+}
