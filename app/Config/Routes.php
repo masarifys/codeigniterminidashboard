@@ -57,4 +57,5 @@ $routes->group('client', function($routes) {
     $routes->post('profile', 'Client::profile');
     $routes->get('support', 'Client::support'); // Live support
     $routes->get('tickets', 'Client::tickets'); // Trouble tickets
+    $routes->get('test-duitku', 'Client::testDuitku'); // Test Duitku configuration (dev only)
 });

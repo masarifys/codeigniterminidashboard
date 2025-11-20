@@ -87,12 +87,28 @@ class DuitkuPayment
      */
     public function createInvoice($invoiceData)
     {
+        // Validate required fields
+        $requiredFields = ['merchantOrderId', 'paymentAmount', 'email', 'productDetails', 'callbackUrl', 'returnUrl'];
+        foreach ($requiredFields as $field) {
+            if (empty($invoiceData[$field])) {
+                log_message('error', "Duitku API Error: Missing required field '{$field}'");
+                return null;
+            }
+        }
+        
+        // Validate email format
+        if (!filter_var($invoiceData['email'], FILTER_VALIDATE_EMAIL)) {
+            log_message('error', "Duitku API Error: Invalid email format '{$invoiceData['email']}'");
+            return null;
+        }
+        
+        // Fix: Use correct full path for API endpoint
         $url = $this->config->getBaseUrl() . '/v2/inquiry';
         
         $params = [
             'merchantCode' => $this->config->merchantCode,
-            'paymentAmount' => $invoiceData['paymentAmount'],
-            'paymentMethod' => 'VC', // Virtual Account (default)
+            'paymentAmount' => (string) $invoiceData['paymentAmount'], // Convert to string
+            'paymentMethod' => 'SP', // SP = User selects payment method
             'merchantOrderId' => $invoiceData['merchantOrderId'],
             'productDetails' => $invoiceData['productDetails'],
             'email' => $invoiceData['email'],
@@ -108,14 +124,30 @@ class DuitkuPayment
         // Generate signature
         $params['signature'] = $this->generateSignature($params);
         
+        // Log request for debugging
+        log_message('info', 'Duitku API Request to: ' . $url);
+        log_message('info', 'Duitku API Request params: ' . json_encode([
+            'merchantOrderId' => $params['merchantOrderId'],
+            'paymentAmount' => $params['paymentAmount'],
+            'email' => $params['email'],
+            'paymentMethod' => $params['paymentMethod']
+        ]));
+        
         $response = $this->sendRequest($url, $params);
         
         if ($response && isset($response['paymentUrl'])) {
+            log_message('info', 'Duitku API Success: Payment URL created for order ' . $params['merchantOrderId']);
             return $response['paymentUrl'];
         }
         
-        // Log error for debugging
-        log_message('error', 'Duitku API Error: ' . json_encode($response));
+        // Log detailed error for debugging
+        $errorMsg = 'Unknown error';
+        if (is_array($response)) {
+            $errorMsg = json_encode($response);
+        } elseif (is_string($response)) {
+            $errorMsg = $response;
+        }
+        log_message('error', 'Duitku API Error Response: ' . $errorMsg);
         
         return null;
     }
@@ -146,6 +178,56 @@ class DuitkuPayment
     }
     
     /**
+     * Test Duitku API connection and configuration
+     * 
+     * @return array Test results
+     */
+    public function testConnection()
+    {
+        $results = [
+            'config' => [
+                'merchantCode' => $this->config->merchantCode,
+                'sandboxMode' => $this->config->sandboxMode,
+                'baseUrl' => $this->config->getBaseUrl(),
+                'apiKeySet' => !empty($this->config->apiKey)
+            ],
+            'connectivity' => false,
+            'signature' => false,
+            'errors' => []
+        ];
+        
+        // Test 1: Check if API key is set
+        if (empty($this->config->apiKey)) {
+            $results['errors'][] = 'API Key is not configured';
+            return $results;
+        }
+        
+        // Test 2: Test signature generation
+        $testData = [
+            'merchantOrderId' => 'TEST-' . time(),
+            'paymentAmount' => '10000'
+        ];
+        try {
+            $signature = $this->generateSignature($testData);
+            $results['signature'] = !empty($signature);
+            $results['testSignature'] = $signature;
+        } catch (\Exception $e) {
+            $results['errors'][] = 'Signature generation failed: ' . $e->getMessage();
+        }
+        
+        // Test 3: Test API connectivity with payment methods endpoint
+        try {
+            $methods = $this->getPaymentMethods(10000);
+            $results['connectivity'] = is_array($methods) && count($methods) > 0;
+            $results['paymentMethodsCount'] = is_array($methods) ? count($methods) : 0;
+        } catch (\Exception $e) {
+            $results['errors'][] = 'API connectivity test failed: ' . $e->getMessage();
+        }
+        
+        return $results;
+    }
+    
+    /**
      * Send HTTP request to Duitku API
      * 
      * @param string $url
@@ -165,23 +247,37 @@ class DuitkuPayment
         ]);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Add 30 second timeout
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // 10 second connection timeout
         
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        
-        if (curl_errno($ch)) {
-            log_message('error', 'Duitku cURL Error: ' . curl_error($ch));
-            curl_close($ch);
-            return null;
-        }
+        $curlError = curl_error($ch);
+        $curlErrno = curl_errno($ch);
         
         curl_close($ch);
         
-        if ($httpCode !== 200) {
-            log_message('error', 'Duitku HTTP Error: ' . $httpCode . ' - ' . $response);
+        // Log raw response for debugging
+        log_message('info', 'Duitku HTTP Response Code: ' . $httpCode);
+        log_message('debug', 'Duitku Raw Response: ' . substr($response, 0, 500)); // Log first 500 chars
+        
+        if ($curlErrno) {
+            log_message('error', 'Duitku cURL Error (' . $curlErrno . '): ' . $curlError);
             return null;
         }
         
-        return json_decode($response, true);
+        if ($httpCode !== 200) {
+            log_message('error', 'Duitku HTTP Error ' . $httpCode . ': ' . substr($response, 0, 200));
+            return null;
+        }
+        
+        // Decode JSON and handle errors
+        $decoded = json_decode($response, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            log_message('error', 'Duitku JSON Decode Error: ' . json_last_error_msg());
+            return null;
+        }
+        
+        return $decoded;
     }
 }
