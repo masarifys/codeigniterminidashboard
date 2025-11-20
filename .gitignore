@@ -1,2 +1,6 @@
 writable/gmail-oauth-token.json
 app/Config/Email.php
+.env
+writable/database.db
+writable/logs/
+writable/session/
