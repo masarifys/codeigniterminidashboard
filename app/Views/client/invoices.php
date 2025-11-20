@@ -76,13 +76,13 @@
                         </td>
                         <td>
                             <?php if ($invoice['status'] === 'unpaid' || $invoice['status'] === 'past_due'): ?>
-                            <button class="btn btn-sm btn-primary">
+                            <a href="<?= base_url('client/invoice/' . $invoice['id'] . '/pay') ?>" class="btn btn-sm btn-primary">
                                 <i class="fas fa-credit-card"></i> Pay Now
-                            </button>
+                            </a>
                             <?php endif; ?>
-                            <button class="btn btn-sm btn-manage">
-                                View <i class="fas fa-eye"></i>
-                            </button>
+                            <a href="<?= base_url('client/invoice/' . $invoice['id']) ?>" class="btn btn-sm btn-manage">
+                                <i class="fas fa-eye"></i> View
+                            </a>
                         </td>
                     </tr>
                     <?php endforeach; ?>

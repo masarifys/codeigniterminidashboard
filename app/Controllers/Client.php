@@ -6,6 +6,8 @@ use App\Models\UserModel;
 use App\Models\ServiceModel;
 use App\Models\InvoiceModel;
 use App\Models\TicketModel;
+use App\Models\InvoiceItemModel;
+use App\Models\TransactionModel;
 use CodeIgniter\Controller;
 
 class Client extends Controller
@@ -175,5 +177,125 @@ class Client extends Controller
         ];
 
         return view('client/profile', $data);
+    }
+
+    public function invoiceDetail($id)
+    {
+        $userId = session()->get('id');
+        $invoice = $this->invoiceModel->find($id);
+        
+        // Check if invoice exists and belongs to logged in user
+        if (!$invoice || $invoice['user_id'] != $userId) {
+            return redirect()->to('/client/invoices')->with('error', 'Invoice not found');
+        }
+        
+        // Get invoice items
+        $invoiceItemModel = new InvoiceItemModel();
+        $items = $invoiceItemModel->where('invoice_id', $id)->findAll();
+        
+        // Get transaction details if paid
+        $transaction = null;
+        if ($invoice['status'] == 'paid') {
+            $transactionModel = new TransactionModel();
+            $transaction = $transactionModel->where('invoice_id', $id)->first();
+        }
+        
+        $data = [
+            'title' => 'Invoice Detail',
+            'user' => $this->userModel->find($userId),
+            'invoice' => $invoice,
+            'items' => $items,
+            'transaction' => $transaction
+        ];
+        
+        return view('client/invoice_detail', $data);
+    }
+
+    public function payInvoice($id)
+    {
+        $userId = session()->get('id');
+        $invoice = $this->invoiceModel->find($id);
+        
+        // Validate invoice
+        if (!$invoice || $invoice['user_id'] != $userId) {
+            return redirect()->to('/client/invoices')->with('error', 'Invoice not found');
+        }
+        
+        if ($invoice['status'] == 'paid') {
+            return redirect()->to('/client/invoice/' . $id)->with('info', 'Invoice already paid');
+        }
+        
+        // Create payment request to Duitku
+        $duitku = new \App\Libraries\DuitkuPayment();
+        $user = $this->userModel->find($userId);
+        
+        $paymentUrl = $duitku->createInvoice([
+            'merchantOrderId' => $invoice['invoice_number'],
+            'paymentAmount' => $invoice['amount'],
+            'email' => $user['email'],
+            'phoneNumber' => '08123456789',
+            'productDetails' => 'Payment for invoice ' . $invoice['invoice_number'],
+            'merchantUserInfo' => $user['full_name'],
+            'callbackUrl' => base_url('client/payment/callback'),
+            'returnUrl' => base_url('client/invoice/' . $id),
+            'expiryPeriod' => 60
+        ]);
+        
+        if ($paymentUrl) {
+            return redirect()->to($paymentUrl);
+        } else {
+            return redirect()->back()->with('error', 'Failed to create payment. Please try again.');
+        }
+    }
+
+    public function paymentCallback()
+    {
+        // Get callback data from Duitku
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+        
+        // Log callback for debugging
+        log_message('info', 'Duitku Callback Received: ' . json_encode($data));
+        
+        // Validate signature
+        $duitku = new \App\Libraries\DuitkuPayment();
+        if (!$duitku->validateCallback($data)) {
+            log_message('error', 'Invalid Duitku callback signature');
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Invalid signature']);
+        }
+        
+        // Get invoice
+        $invoice = $this->invoiceModel->where('invoice_number', $data['merchantOrderId'])->first();
+        
+        if (!$invoice) {
+            log_message('error', 'Invoice not found: ' . $data['merchantOrderId']);
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Invoice not found']);
+        }
+        
+        // Update invoice status
+        if ($data['resultCode'] == '00') { // Success
+            $this->invoiceModel->update($invoice['id'], [
+                'status' => 'paid',
+                'paid_date' => date('Y-m-d H:i:s')
+            ]);
+            
+            // Save transaction details
+            $transactionModel = new TransactionModel();
+            $transactionModel->insert([
+                'invoice_id' => $invoice['id'],
+                'user_id' => $invoice['user_id'],
+                'transaction_id' => $data['reference'] ?? $data['merchantOrderId'],
+                'gateway' => $data['paymentCode'] ?? 'DUITKU',
+                'amount' => $data['amount'],
+                'transaction_date' => date('Y-m-d H:i:s'),
+                'status' => 'success'
+            ]);
+            
+            log_message('info', 'Invoice ' . $invoice['invoice_number'] . ' paid successfully');
+        } else {
+            log_message('warning', 'Payment failed for invoice ' . $invoice['invoice_number'] . '. Result code: ' . $data['resultCode']);
+        }
+        
+        return $this->response->setJSON(['status' => 'success']);
     }
 }
