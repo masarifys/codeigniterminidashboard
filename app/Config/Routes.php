@@ -45,6 +45,10 @@ $routes->get('auth/gmail-callback', 'GmailAuth::callback');
 $routes->group('client', function($routes) {
     $routes->get('dashboard', 'Client::dashboard');
     $routes->get('services', 'Client::services'); // Menu semua layanan
+    $routes->get('service/(:num)', 'Client::serviceDetail/$1'); // Service detail
+    $routes->get('service/(:num)/upgrade', 'Client::upgradeService/$1'); // Upgrade service
+    $routes->get('service/(:num)/renew', 'Client::renewService/$1'); // Renew service
+    $routes->post('service/(:num)/cancel', 'Client::cancelService/$1'); // Cancel service
     $routes->get('invoices', 'Client::invoices'); // Menu invoices
     $routes->get('invoice/(:num)', 'Client::invoiceDetail/$1');
     $routes->get('invoice/(:num)/pay', 'Client::payInvoice/$1');

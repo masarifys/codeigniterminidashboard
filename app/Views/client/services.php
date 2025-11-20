@@ -62,7 +62,6 @@
                             Due Date
                             <i class="fas fa-sort text-muted"></i>
                         </th>
-                        <th>IP</th>
                         <th>
                             Status
                             <i class="fas fa-sort text-muted"></i>
@@ -83,16 +82,15 @@
                         </td>
                         <td><?= date('Y-m-d', strtotime($service['registration_date'])) ?></td>
                         <td><?= date('Y-m-d', strtotime($service['due_date'])) ?></td>
-                        <td><?= $service['ip_address'] ? esc($service['ip_address']) : '-' ?></td>
                         <td>
                             <span class="badge badge-<?= $service['status'] ?>">
                                 <?= ucfirst($service['status']) ?>
                             </span>
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-manage">
+                            <a href="/client/service/<?= $service['id'] ?>" class="btn btn-sm btn-manage">
                                 Manage <i class="fas fa-arrow-right"></i>
-                            </button>
+                            </a>
                         </td>
                     </tr>
                     <?php endforeach; ?>
