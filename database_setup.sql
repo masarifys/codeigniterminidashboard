@@ -4,6 +4,7 @@
 -- ============================================
 
 -- Drop tables if they exist (in reverse order to handle foreign keys)
+DROP TABLE IF EXISTS `service_cancellations`;
 DROP TABLE IF EXISTS `transactions`;
 DROP TABLE IF EXISTS `invoice_items`;
 DROP TABLE IF EXISTS `tickets`;
@@ -145,6 +146,29 @@ CREATE TABLE `transactions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
+-- Table: service_cancellations
+-- Description: Service cancellation requests
+-- ============================================
+CREATE TABLE `service_cancellations` (
+    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `service_id` INT(11) UNSIGNED NOT NULL,
+    `user_id` INT(11) UNSIGNED NOT NULL,
+    `reason` TEXT DEFAULT NULL,
+    `cancellation_type` ENUM('immediate', 'end_of_billing_period') NOT NULL DEFAULT 'end_of_billing_period',
+    `status` ENUM('pending', 'approved', 'cancelled') NOT NULL DEFAULT 'pending',
+    `requested_at` DATETIME DEFAULT NULL,
+    `processed_at` DATETIME DEFAULT NULL,
+    `created_at` DATETIME DEFAULT NULL,
+    `updated_at` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_service_id` (`service_id`),
+    KEY `idx_user_id` (`user_id`),
+    KEY `idx_status` (`status`),
+    CONSTRAINT `fk_service_cancellations_service` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `fk_service_cancellations_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
 -- Sample Data (Test Data)
 -- ============================================
 
@@ -204,7 +228,8 @@ SELECT
     (SELECT COUNT(*) FROM invoices) AS total_invoices,
     (SELECT COUNT(*) FROM tickets) AS total_tickets,
     (SELECT COUNT(*) FROM invoice_items) AS total_invoice_items,
-    (SELECT COUNT(*) FROM transactions) AS total_transactions;
+    (SELECT COUNT(*) FROM transactions) AS total_transactions,
+    (SELECT COUNT(*) FROM service_cancellations) AS total_service_cancellations;
 
 -- ============================================
 -- Additional Indexes for Performance
