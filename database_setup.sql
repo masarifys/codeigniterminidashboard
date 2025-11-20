@@ -4,6 +4,8 @@
 -- ============================================
 
 -- Drop tables if they exist (in reverse order to handle foreign keys)
+DROP TABLE IF EXISTS `transactions`;
+DROP TABLE IF EXISTS `invoice_items`;
 DROP TABLE IF EXISTS `tickets`;
 DROP TABLE IF EXISTS `invoices`;
 DROP TABLE IF EXISTS `services`;
@@ -103,6 +105,46 @@ CREATE TABLE `tickets` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
+-- Table: invoice_items
+-- Description: Invoice line items for detailed billing
+-- ============================================
+CREATE TABLE `invoice_items` (
+    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `invoice_id` INT(11) UNSIGNED NOT NULL,
+    `description` TEXT NOT NULL,
+    `amount` DECIMAL(15,2) NOT NULL,
+    `created_at` DATETIME DEFAULT NULL,
+    `updated_at` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_invoice_id` (`invoice_id`),
+    CONSTRAINT `fk_invoice_items_invoice` FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
+-- Table: transactions
+-- Description: Payment transaction records
+-- ============================================
+CREATE TABLE `transactions` (
+    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `invoice_id` INT(11) UNSIGNED NOT NULL,
+    `user_id` INT(11) UNSIGNED NOT NULL,
+    `transaction_id` VARCHAR(255) NOT NULL,
+    `gateway` VARCHAR(100) NOT NULL,
+    `amount` DECIMAL(15,2) NOT NULL,
+    `transaction_date` DATETIME NOT NULL,
+    `status` ENUM('pending', 'success', 'failed') NOT NULL DEFAULT 'pending',
+    `created_at` DATETIME DEFAULT NULL,
+    `updated_at` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_invoice_id` (`invoice_id`),
+    KEY `idx_user_id` (`user_id`),
+    KEY `idx_transaction_id` (`transaction_id`),
+    KEY `idx_status` (`status`),
+    CONSTRAINT `fk_transactions_invoice` FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `fk_transactions_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
 -- Sample Data (Test Data)
 -- ============================================
 
@@ -136,6 +178,18 @@ VALUES
 (@user_id, 'Question about billing', 'Billing', 'medium', 'answered', NOW(), NOW()),
 (@user_id, 'Need help with setup', 'Technical Support', 'low', 'closed', NOW(), NOW());
 
+-- Insert sample invoice items
+INSERT INTO `invoice_items` (`invoice_id`, `description`, `amount`, `created_at`, `updated_at`) 
+VALUES 
+(1, 'Unlimited L Hosting - Annual Subscription', 1680000.00, NOW(), NOW()),
+(2, 'VPS Standard - Monthly Fee', 250000.00, NOW(), NOW()),
+(3, 'Shared Hosting - Quarterly Payment', 150000.00, NOW(), NOW());
+
+-- Insert sample transaction (for paid invoice)
+INSERT INTO `transactions` (`invoice_id`, `user_id`, `transaction_id`, `gateway`, `amount`, `transaction_date`, `status`, `created_at`, `updated_at`) 
+VALUES 
+(3, @user_id, 'TRX-2025-000003', 'BCA Virtual Account', 150000.00, '2025-10-14 10:30:00', 'success', NOW(), NOW());
+
 -- ============================================
 -- Verification Queries
 -- ============================================
@@ -148,7 +202,9 @@ SELECT
     (SELECT COUNT(*) FROM users) AS total_users,
     (SELECT COUNT(*) FROM services) AS total_services,
     (SELECT COUNT(*) FROM invoices) AS total_invoices,
-    (SELECT COUNT(*) FROM tickets) AS total_tickets;
+    (SELECT COUNT(*) FROM tickets) AS total_tickets,
+    (SELECT COUNT(*) FROM invoice_items) AS total_invoice_items,
+    (SELECT COUNT(*) FROM transactions) AS total_transactions;
 
 -- ============================================
 -- Additional Indexes for Performance
