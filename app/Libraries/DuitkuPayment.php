@@ -23,7 +23,7 @@ class DuitkuPayment
     {
         $merchantCode = $this->config->merchantCode;
         $merchantOrderId = $data['merchantOrderId'];
-        $paymentAmount = $data['paymentAmount'];
+        $paymentAmount = (string)intval($data['paymentAmount']); // Force integer to remove decimals
         $apiKey = $this->config->apiKey;
         
         $signature = hash('sha256', $merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
@@ -102,12 +102,19 @@ class DuitkuPayment
             return null;
         }
         
+        // Validate and convert payment amount to integer
+        $amount = intval($invoiceData['paymentAmount']);
+        if ($amount <= 0) {
+            log_message('error', 'Duitku: Invalid payment amount: ' . $amount);
+            return null;
+        }
+        
         // Fix: Use correct full path for API endpoint
         $url = $this->config->getBaseUrl() . '/v2/inquiry';
         
         $params = [
             'merchantCode' => $this->config->merchantCode,
-            'paymentAmount' => (string) $invoiceData['paymentAmount'], // Convert to string
+            'paymentAmount' => (string)intval($invoiceData['paymentAmount']), // Convert to integer then string
             'paymentMethod' => 'SP', // SP = User selects payment method
             'merchantOrderId' => $invoiceData['merchantOrderId'],
             'productDetails' => $invoiceData['productDetails'],
