@@ -29,8 +29,8 @@ class DuitkuPayment
         $paymentAmount = (string)intval($data['paymentAmount']); // Force integer to remove decimals
         $apiKey = $this->config->apiKey;
         
-        // Duitku API required format: md5(merchantCode + paymentAmount + merchantOrderId + apiKey)
-        $signature = md5($merchantCode . $paymentAmount . $merchantOrderId . $apiKey);
+        // Duitku API required format: md5(merchantCode + merchantOrderId + paymentAmount + apiKey)
+        $signature = md5($merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
         
         return $signature;
     }
@@ -52,7 +52,7 @@ class DuitkuPayment
         $amount = (string)intval($data['amount']); // Force integer to remove decimals
         $apiKey = $this->config->apiKey;
         
-        $calculatedSignature = md5($merchantCode . $amount . $merchantOrderId . $apiKey);
+        $calculatedSignature = md5($merchantCode . $merchantOrderId . $amount . $apiKey);
         
         return $calculatedSignature === $data['signature'];
     }
