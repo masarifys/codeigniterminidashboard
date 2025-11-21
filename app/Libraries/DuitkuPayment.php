@@ -16,6 +16,9 @@ class DuitkuPayment
     /**
      * Generate signature for API request
      * 
+     * Note: MD5 is required by Duitku API specification, not chosen for security reasons.
+     * The signature format is mandated by Duitku's payment gateway documentation.
+     * 
      * @param array $data
      * @return string
      */
@@ -26,6 +29,7 @@ class DuitkuPayment
         $paymentAmount = (string)intval($data['paymentAmount']); // Force integer to remove decimals
         $apiKey = $this->config->apiKey;
         
+        // Duitku API required format: md5(merchantCode + paymentAmount + merchantOrderId + apiKey)
         $signature = md5($merchantCode . $paymentAmount . $merchantOrderId . $apiKey);
         
         return $signature;

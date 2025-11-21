@@ -182,10 +182,11 @@ final class DuitkuPaymentTest extends CIUnitTestCase
         $signature = $this->duitku->generateSignature($data);
         
         // Generate expected signature manually with correct order
+        // Uses same data values to ensure consistency
         $expectedSignature = md5(
             $config->merchantCode . 
-            '100000' . // paymentAmount
-            'INV-2025-0001' . // merchantOrderId
+            $data['paymentAmount'] . 
+            $data['merchantOrderId'] . 
             $config->apiKey
         );
         
