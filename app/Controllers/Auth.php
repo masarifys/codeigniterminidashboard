@@ -25,6 +25,15 @@ class Auth extends Controller
 
     public function login()
     {
+        // Tambahkan log ini di awal method
+        log_message('debug', 'Auth::login() method called.');
+    
+        $username = $this->request->getPost('username');
+        $password = $this->request->getPost('password');
+    
+        // Log data yang diterima
+        log_message('debug', 'Username received: ' . $username);
+        log_message('debug', 'Password received: ' . $password); // Hati-hati di produksi!
         if (session()->get('isLoggedIn')) {
             return $this->redirectToDashboard();
         }
