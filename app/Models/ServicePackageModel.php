@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class ServiceModel extends Model
+class ServicePackageModel extends Model
 {
-    protected $table            = 'services';
+    protected $table            = 'service_packages';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'product_name', 'domain', 'price', 'billing_cycle', 'registration_date', 'due_date', 'ip_address', 'status', 'username', 'password', 'server', 'panel_url', 'registrar', 'domain_expiry_date', 'hosting_provider', 'hosting_renewal_date', 'ssl_status', 'ssl_expiry_date', 'uptime_monitor_url', 'uptime_status', 'last_uptime_check'];
+    protected $allowedFields    = ['name', 'description', 'storage', 'bandwidth', 'price', 'billing_cycle', 'features', 'notes', 'is_active'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -28,7 +28,11 @@ class ServiceModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
+    protected $validationRules      = [
+        'name' => 'required|min_length[3]|max_length[255]',
+        'price' => 'required|decimal',
+        'billing_cycle' => 'required|in_list[monthly,quarterly,semi-annually,annually]',
+    ];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
@@ -43,4 +47,11 @@ class ServiceModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function getActivePackages()
+    {
+        return $this->where('is_active', 1)
+                    ->orderBy('price', 'ASC')
+                    ->findAll();
+    }
 }

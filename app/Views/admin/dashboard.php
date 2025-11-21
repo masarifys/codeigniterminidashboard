@@ -16,6 +16,31 @@
                         </a>
                     </li>
                     <li>
+                        <a href="/admin/clients" class="nav-link">
+                            <i class="fas fa-briefcase"></i> <span class="ms-1 d-none d-sm-inline">Clients</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/services" class="nav-link">
+                            <i class="fas fa-server"></i> <span class="ms-1 d-none d-sm-inline">Services</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/packages" class="nav-link">
+                            <i class="fas fa-box"></i> <span class="ms-1 d-none d-sm-inline">Packages</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/monitoring" class="nav-link">
+                            <i class="fas fa-heartbeat"></i> <span class="ms-1 d-none d-sm-inline">Monitoring</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/billing" class="nav-link">
+                            <i class="fas fa-file-invoice-dollar"></i> <span class="ms-1 d-none d-sm-inline">Billing</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="/admin/users" class="nav-link">
                             <i class="fas fa-users"></i> <span class="ms-1 d-none d-sm-inline">Users</span>
                         </a>

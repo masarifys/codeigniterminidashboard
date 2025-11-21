@@ -31,6 +31,36 @@ $routes->group('admin', function($routes) {
     $routes->get('delete-user/(:num)', 'Admin::deleteUser/$1');
     $routes->get('toggle-user/(:num)', 'Admin::toggleUserStatus/$1');
     
+    // Client management
+    $routes->get('clients', 'Admin::clients');
+    $routes->get('client/(:num)', 'Admin::clientDetail/$1');
+    $routes->get('client/create', 'Admin::createClient');
+    $routes->post('client/create', 'Admin::createClient');
+    $routes->get('client/(:num)/edit', 'Admin::editClient/$1');
+    $routes->post('client/(:num)/edit', 'Admin::editClient/$1');
+    $routes->get('client/(:num)/delete', 'Admin::deleteClient/$1');
+    
+    // Service management
+    $routes->get('services', 'Admin::services');
+    $routes->get('service/(:num)/edit', 'Admin::editService/$1');
+    $routes->post('service/(:num)/edit', 'Admin::editService/$1');
+    
+    // Package management
+    $routes->get('packages', 'Admin::packages');
+    $routes->get('package/create', 'Admin::createPackage');
+    $routes->post('package/create', 'Admin::createPackage');
+    $routes->get('package/(:num)/edit', 'Admin::editPackage/$1');
+    $routes->post('package/(:num)/edit', 'Admin::editPackage/$1');
+    $routes->get('package/(:num)/delete', 'Admin::deletePackage/$1');
+    
+    // Monitoring
+    $routes->get('monitoring', 'Admin::monitoring');
+    
+    // Billing
+    $routes->get('billing', 'Admin::billing');
+    $routes->get('invoice/create', 'Admin::createInvoice');
+    $routes->post('invoice/create', 'Admin::createInvoice');
+    
     // Gmail OAuth management
     $routes->get('gmail-setup', 'GmailAuth::index');
     $routes->get('gmail-setup/authorize', 'GmailAuth::authorize');

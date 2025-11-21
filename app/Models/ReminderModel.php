@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class ServiceModel extends Model
+class ReminderModel extends Model
 {
-    protected $table            = 'services';
+    protected $table            = 'reminders';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'product_name', 'domain', 'price', 'billing_cycle', 'registration_date', 'due_date', 'ip_address', 'status', 'username', 'password', 'server', 'panel_url', 'registrar', 'domain_expiry_date', 'hosting_provider', 'hosting_renewal_date', 'ssl_status', 'ssl_expiry_date', 'uptime_monitor_url', 'uptime_status', 'last_uptime_check'];
+    protected $allowedFields    = ['user_id', 'service_id', 'type', 'reminder_date', 'message', 'is_sent', 'sent_at'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -28,7 +28,11 @@ class ServiceModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
+    protected $validationRules      = [
+        'user_id' => 'required|integer',
+        'type' => 'required|in_list[domain_renewal,hosting_renewal,ssl_expiry,invoice_due,maintenance_due]',
+        'reminder_date' => 'required|valid_date',
+    ];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
@@ -43,4 +47,21 @@ class ServiceModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function getPendingReminders()
+    {
+        return $this->where('is_sent', 0)
+                    ->where('reminder_date <=', date('Y-m-d'))
+                    ->findAll();
+    }
+
+    public function getUserReminders($userId, $limit = 5)
+    {
+        return $this->where('user_id', $userId)
+                    ->where('is_sent', 0)
+                    ->where('reminder_date <=', date('Y-m-d', strtotime('+30 days')))
+                    ->orderBy('reminder_date', 'ASC')
+                    ->limit($limit)
+                    ->findAll();
+    }
 }

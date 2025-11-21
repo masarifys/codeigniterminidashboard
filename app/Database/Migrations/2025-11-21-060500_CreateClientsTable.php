@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CreateInvoicesTable extends Migration
+class CreateClientsTable extends Migration
 {
     public function up()
     {
@@ -20,31 +20,38 @@ class CreateInvoicesTable extends Migration
                 'constraint' => 11,
                 'unsigned' => true,
             ],
-            'invoice_number' => [
+            'business_name' => [
                 'type' => 'VARCHAR',
-                'constraint' => 50,
+                'constraint' => 255,
             ],
-            'service_id' => [
-                'type' => 'INT',
-                'constraint' => 11,
-                'unsigned' => true,
+            'contact_person' => [
+                'type' => 'VARCHAR',
+                'constraint' => 255,
                 'null' => true,
             ],
-            'amount' => [
-                'type' => 'DECIMAL',
-                'constraint' => '10,2',
+            'contact_email' => [
+                'type' => 'VARCHAR',
+                'constraint' => 255,
+                'null' => true,
             ],
-            'due_date' => [
-                'type' => 'DATE',
+            'contact_phone' => [
+                'type' => 'VARCHAR',
+                'constraint' => 50,
+                'null' => true,
             ],
-            'paid_date' => [
-                'type' => 'DATE',
+            'domain' => [
+                'type' => 'VARCHAR',
+                'constraint' => 255,
                 'null' => true,
             ],
             'status' => [
                 'type' => 'ENUM',
-                'constraint' => ['unpaid', 'paid', 'past_due', 'cancelled'],
-                'default' => 'unpaid',
+                'constraint' => ['progress', 'revision', 'completed', 'cancelled'],
+                'default' => 'progress',
+            ],
+            'notes' => [
+                'type' => 'TEXT',
+                'null' => true,
             ],
             'created_at' => [
                 'type' => 'DATETIME',
@@ -57,13 +64,11 @@ class CreateInvoicesTable extends Migration
         ]);
         $this->forge->addKey('id', true);
         $this->forge->addKey('user_id');
-        $this->forge->addKey('service_id');
-        $this->forge->addUniqueKey('invoice_number');
-        $this->forge->createTable('invoices');
+        $this->forge->createTable('clients');
     }
 
     public function down()
     {
-        $this->forge->dropTable('invoices');
+        $this->forge->dropTable('clients');
     }
 }

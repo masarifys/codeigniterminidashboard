@@ -117,7 +117,7 @@
 
     <!-- Right Sidebar - Status Card -->
     <div class="col-lg-3 mb-4">
-        <div class="card shadow">
+        <div class="card shadow mb-3">
             <div class="card-header bg-info text-white">
                 <h5 class="mb-0"><i class="fas fa-info-circle"></i> Status</h5>
             </div>
@@ -168,6 +168,120 @@
                 </div>
             </div>
         </div>
+
+        <!-- Domain & Hosting Info Card -->
+        <?php if (!empty($service['registrar']) || !empty($service['hosting_provider']) || !empty($service['ssl_status'])): ?>
+        <div class="card shadow mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-globe"></i> Domain & Hosting</h5>
+            </div>
+            <div class="card-body">
+                <?php if (!empty($service['registrar'])): ?>
+                <div class="status-item mb-3">
+                    <small class="text-muted">Registrar</small>
+                    <div><?= esc($service['registrar']) ?></div>
+                </div>
+                <?php endif; ?>
+
+                <?php if (!empty($service['domain_expiry_date'])): ?>
+                <div class="status-item mb-3">
+                    <small class="text-muted">Domain Expiry</small>
+                    <div>
+                        <?= date('d M Y', strtotime($service['domain_expiry_date'])) ?>
+                        <?php
+                        $daysUntilExpiry = floor((strtotime($service['domain_expiry_date']) - time()) / (60 * 60 * 24));
+                        if ($daysUntilExpiry <= 30 && $daysUntilExpiry > 0):
+                        ?>
+                            <span class="badge bg-warning text-dark">Expires in <?= $daysUntilExpiry ?> days</span>
+                        <?php elseif ($daysUntilExpiry <= 0): ?>
+                            <span class="badge bg-danger">Expired</span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <?php if (!empty($service['hosting_provider'])): ?>
+                <div class="status-item mb-3">
+                    <small class="text-muted">Hosting Provider</small>
+                    <div><?= esc($service['hosting_provider']) ?></div>
+                </div>
+                <?php endif; ?>
+
+                <?php if (!empty($service['hosting_renewal_date'])): ?>
+                <div class="status-item mb-3">
+                    <small class="text-muted">Hosting Renewal</small>
+                    <div>
+                        <?= date('d M Y', strtotime($service['hosting_renewal_date'])) ?>
+                        <?php
+                        $daysUntilRenewal = floor((strtotime($service['hosting_renewal_date']) - time()) / (60 * 60 * 24));
+                        if ($daysUntilRenewal <= 30 && $daysUntilRenewal > 0):
+                        ?>
+                            <span class="badge bg-warning text-dark">Renews in <?= $daysUntilRenewal ?> days</span>
+                        <?php elseif ($daysUntilRenewal <= 0): ?>
+                            <span class="badge bg-danger">Expired</span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <div class="status-item mb-3">
+                    <small class="text-muted">SSL Status</small>
+                    <div>
+                        <?php
+                        $sslClass = [
+                            'active' => 'bg-success',
+                            'inactive' => 'bg-secondary',
+                            'expiring_soon' => 'bg-warning'
+                        ];
+                        ?>
+                        <span class="badge <?= $sslClass[$service['ssl_status'] ?? 'inactive'] ?>">
+                            <?= ucfirst(str_replace('_', ' ', $service['ssl_status'] ?? 'inactive')) ?>
+                        </span>
+                    </div>
+                </div>
+
+                <?php if (!empty($service['ssl_expiry_date'])): ?>
+                <div class="status-item mb-3">
+                    <small class="text-muted">SSL Expiry</small>
+                    <div><?= date('d M Y', strtotime($service['ssl_expiry_date'])) ?></div>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Uptime Status Card -->
+        <?php if (!empty($service['uptime_monitor_url'])): ?>
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-heartbeat"></i> Uptime Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="status-item mb-3">
+                    <small class="text-muted">Status</small>
+                    <div>
+                        <?php
+                        $uptimeClass = [
+                            'up' => 'bg-success',
+                            'down' => 'bg-danger',
+                            'unknown' => 'bg-secondary'
+                        ];
+                        ?>
+                        <span class="badge <?= $uptimeClass[$service['uptime_status'] ?? 'unknown'] ?>">
+                            <?= strtoupper($service['uptime_status'] ?? 'unknown') ?>
+                        </span>
+                    </div>
+                </div>
+
+                <?php if (!empty($service['last_uptime_check'])): ?>
+                <div class="status-item">
+                    <small class="text-muted">Last Check</small>
+                    <div><?= date('d M Y H:i', strtotime($service['last_uptime_check'])) ?></div>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
 
