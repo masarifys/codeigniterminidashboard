@@ -1,0 +1,8 @@
+Duitku Payment
+ [x] Generate signature with integer amount
+ [x] Generate signature with float amount
+ [x] Generate signature with decimal amount
+ [x] Validate callback with valid data
+ [x] Validate callback with invalid signature
+ [x] Validate callback with missing fields
+
