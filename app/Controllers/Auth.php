@@ -44,12 +44,11 @@ class Auth extends Controller
 
             $user = $this->userModel->where('username', $username)->first();
 
-            if (!$user) {
-                return redirect()->back()->withInput()->with('error', 'Username not found');
-            }
-
-            if (!password_verify($password, $user['password'])) {
-                return redirect()->back()->withInput()->with('error', 'Incorrect password');
+            // Use generic error message to prevent username enumeration
+            $isValidCredentials = $user && password_verify($password, $user['password']);
+            
+            if (!$isValidCredentials) {
+                return redirect()->back()->withInput()->with('error', 'Invalid username or password');
             }
 
             if ($user['is_active'] != 1) {
