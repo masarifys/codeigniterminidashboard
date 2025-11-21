@@ -89,15 +89,31 @@ final class DuitkuPaymentTest extends CIUnitTestCase
     public function testValidateCallbackWithValidData(): void
     {
         // This test verifies the callback validation logic
+        // Using config values through reflection to avoid hardcoding
+        $config = $this->getConfigProperty($this->duitku);
+        $merchantCode = $config->merchantCode;
+        $apiKey = $config->apiKey;
+        
         $data = [
             'merchantOrderId' => 'TEST-123',
             'amount' => '10000',
-            'signature' => md5('DS16902' . '10000' . 'TEST-123' . '792f56c9e2277927191c4c4924f06b40')
+            'signature' => md5($merchantCode . '10000' . 'TEST-123' . $apiKey)
         ];
         
         $result = $this->duitku->validateCallback($data);
         
         $this->assertTrue($result);
+    }
+    
+    /**
+     * Helper method to access config property for testing
+     */
+    private function getConfigProperty($object)
+    {
+        $reflection = new \ReflectionClass($object);
+        $prop = $reflection->getProperty('config');
+        $prop->setAccessible(true);
+        return $prop->getValue($object);
     }
     
     /**

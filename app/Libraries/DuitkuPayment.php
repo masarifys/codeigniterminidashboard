@@ -45,7 +45,7 @@ class DuitkuPayment
         
         $merchantCode = $this->config->merchantCode;
         $merchantOrderId = $data['merchantOrderId'];
-        $amount = $data['amount'];
+        $amount = (string)intval($data['amount']); // Force integer to remove decimals
         $apiKey = $this->config->apiKey;
         
         $calculatedSignature = md5($merchantCode . $amount . $merchantOrderId . $apiKey);
@@ -63,11 +63,13 @@ class DuitkuPayment
     {
         $url = $this->config->getBaseUrl() . '/paymentmethod/getpaymentmethod';
         
+        $intAmount = intval($amount); // Force integer to remove decimals
+        
         $params = [
             'merchantcode' => $this->config->merchantCode,
-            'amount' => $amount,
+            'amount' => $intAmount,
             'datetime' => date('Y-m-d H:i:s'),
-            'signature' => hash('sha256', $this->config->merchantCode . $amount . 'paymentmethod' . $this->config->apiKey)
+            'signature' => hash('sha256', $this->config->merchantCode . $intAmount . 'paymentmethod' . $this->config->apiKey)
         ];
         
         $response = $this->sendRequest($url, $params);
