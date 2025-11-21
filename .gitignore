@@ -6,3 +6,6 @@ writable/logs/
 writable/session/
 writable/debugbar/
 .phpunit.result.cache
+vendor/
+build/
+composer.lock
