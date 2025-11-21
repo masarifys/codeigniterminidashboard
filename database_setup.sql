@@ -172,11 +172,18 @@ CREATE TABLE `service_cancellations` (
 -- Sample Data (Test Data)
 -- ============================================
 
+-- Insert admin user
+-- Password: admin123 (hashed with bcrypt)
+-- WARNING: Change this password immediately in production!
+INSERT INTO `users` (`username`, `email`, `password`, `full_name`, `role`, `is_active`, `created_at`, `updated_at`) 
+VALUES 
+('admin', 'admin@example.com', '$2y$10$5X2z9MVb4SkvW2YyaDnukO3VZZVo6acVA9bSj1UgrB5K05hokSdMq', 'Admin User', 'admin', 1, NOW(), NOW());
+
 -- Insert test client user
 -- Password: password123 (hashed with bcrypt)
 INSERT INTO `users` (`username`, `email`, `password`, `full_name`, `role`, `is_active`, `created_at`, `updated_at`) 
 VALUES 
-('testclient', 'client@test.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Test Client User', 'client', 1, NOW(), NOW());
+('testclient', 'client@test.com', '$2y$10$Xvdp6TGZA5Oj5RS6r9mQAOCcyb88WsUBlfhOXTwdFUvBjUxW7GzsW', 'Test Client User', 'client', 1, NOW(), NOW());
 
 -- Get the last inserted user ID for foreign key references
 SET @user_id = LAST_INSERT_ID();
@@ -243,6 +250,12 @@ ALTER TABLE `tickets` ADD INDEX `idx_user_status` (`user_id`, `status`);
 -- ============================================
 -- Test Login Credentials
 -- ============================================
--- Username: testclient
--- Password: password123
+-- Admin User:
+--   Username: admin
+--   Password: admin123
+--   WARNING: Change this password immediately in production!
+--
+-- Test Client User:
+--   Username: testclient
+--   Password: password123
 -- ============================================

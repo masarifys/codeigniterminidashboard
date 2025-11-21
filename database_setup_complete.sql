@@ -31,9 +31,9 @@ CREATE TABLE `services` (
 	`created_at` DATETIME NULL,
 	`updated_at` DATETIME NULL
 , `username` VARCHAR NULL, `password` VARCHAR NULL, `server` VARCHAR NULL, `panel_url` VARCHAR NULL);
-INSERT INTO services VALUES(1,1,'Unlimited L','example.com',1680000,'annually','2025-11-10','2026-01-09','192.168.1.100','active','2025-11-20 18:54:04','2025-11-20 18:54:04','user_1','pass_1','server1.example.com','https://panel1.example.com');
-INSERT INTO services VALUES(2,1,'VPS Standard','subdomain.example.com',250000,'monthly','2025-10-15','2025-12-15','192.168.1.101','active','2025-11-20 18:54:04','2025-11-20 18:54:04','user_2','pass_2','server2.example.com','https://panel2.example.com');
-INSERT INTO services VALUES(3,1,'Shared Hosting','test.example.com',150000,'quarterly','2025-09-01','2025-12-01',NULL,'pending','2025-11-20 18:54:04','2025-11-20 18:54:04','user_3','pass_3','server3.example.com','https://panel3.example.com');
+INSERT INTO services VALUES(1,2,'Unlimited L','example.com',1680000,'annually','2025-11-10','2026-01-09','192.168.1.100','active','2025-11-21 09:00:00','2025-11-21 09:00:00','user_1','pass_1','server1.example.com','https://panel1.example.com');
+INSERT INTO services VALUES(2,2,'VPS Standard','subdomain.example.com',250000,'monthly','2025-10-15','2025-12-15','192.168.1.101','active','2025-11-21 09:00:00','2025-11-21 09:00:00','user_2','pass_2','server2.example.com','https://panel2.example.com');
+INSERT INTO services VALUES(3,2,'Shared Hosting','test.example.com',150000,'quarterly','2025-09-01','2025-12-01',NULL,'pending','2025-11-21 09:00:00','2025-11-21 09:00:00','user_3','pass_3','server3.example.com','https://panel3.example.com');
 CREATE TABLE `invoices` (
 	`id` INTEGER PRIMARY KEY AUTOINCREMENT,
 	`user_id` INT NOT NULL,
@@ -46,9 +46,9 @@ CREATE TABLE `invoices` (
 	`created_at` DATETIME NULL,
 	`updated_at` DATETIME NULL
 );
-INSERT INTO invoices VALUES(1,1,'INV-2025-0001',1,1680000,'2025-11-20',NULL,'unpaid','2025-11-20 18:54:04','2025-11-20 18:54:04');
-INSERT INTO invoices VALUES(2,1,'INV-2025-0002',2,250000,'2025-11-15',NULL,'past_due','2025-11-20 18:54:04','2025-11-20 18:54:04');
-INSERT INTO invoices VALUES(3,1,'INV-2025-0003',3,150000,'2025-10-15','2025-10-14','paid','2025-11-20 18:54:04','2025-11-20 18:54:04');
+INSERT INTO invoices VALUES(1,2,'INV-2025-0001',1,1680000,'2025-11-20',NULL,'unpaid','2025-11-21 09:00:00','2025-11-21 09:00:00');
+INSERT INTO invoices VALUES(2,2,'INV-2025-0002',2,250000,'2025-11-15',NULL,'past_due','2025-11-21 09:00:00','2025-11-21 09:00:00');
+INSERT INTO invoices VALUES(3,2,'INV-2025-0003',3,150000,'2025-10-15','2025-10-14','paid','2025-11-21 09:00:00','2025-11-21 09:00:00');
 CREATE TABLE `tickets` (
 	`id` INTEGER PRIMARY KEY AUTOINCREMENT,
 	`user_id` INT NOT NULL,
@@ -59,9 +59,9 @@ CREATE TABLE `tickets` (
 	`created_at` DATETIME NULL,
 	`updated_at` DATETIME NULL
 );
-INSERT INTO tickets VALUES(1,1,'Server not responding','Technical Support','high','open','2025-11-20 18:54:04','2025-11-20 18:54:04');
-INSERT INTO tickets VALUES(2,1,'Question about billing','Billing','medium','answered','2025-11-20 18:54:04','2025-11-20 18:54:04');
-INSERT INTO tickets VALUES(3,1,'Need help with setup','Technical Support','low','closed','2025-11-20 18:54:04','2025-11-20 18:54:04');
+INSERT INTO tickets VALUES(1,2,'Server not responding','Technical Support','high','open','2025-11-21 09:00:00','2025-11-21 09:00:00');
+INSERT INTO tickets VALUES(2,2,'Question about billing','Billing','medium','answered','2025-11-21 09:00:00','2025-11-21 09:00:00');
+INSERT INTO tickets VALUES(3,2,'Need help with setup','Technical Support','low','closed','2025-11-21 09:00:00','2025-11-21 09:00:00');
 CREATE TABLE `users` (
 	`id` INTEGER PRIMARY KEY AUTOINCREMENT,
 	`username` VARCHAR NOT NULL UNIQUE,
@@ -75,7 +75,8 @@ CREATE TABLE `users` (
 	`created_at` DATETIME NULL,
 	`updated_at` DATETIME NULL
 );
-INSERT INTO users VALUES(1,'testclient','client@test.com','$2y$10$yBcGfRQsn9DBWoIRhkg6K.kW.kSxISBRZvv1xfkTH4Kffxoqxbmu2','Test Client User','client',1,NULL,NULL,'2025-11-20 18:54:04','2025-11-20 18:54:04');
+INSERT INTO users VALUES(1,'admin','admin@example.com','$2y$10$5X2z9MVb4SkvW2YyaDnukO3VZZVo6acVA9bSj1UgrB5K05hokSdMq','Admin User','admin',1,NULL,NULL,'2025-11-21 09:00:00','2025-11-21 09:00:00');
+INSERT INTO users VALUES(2,'testclient','client@test.com','$2y$10$Xvdp6TGZA5Oj5RS6r9mQAOCcyb88WsUBlfhOXTwdFUvBjUxW7GzsW','Test Client User','client',1,NULL,NULL,'2025-11-21 09:00:00','2025-11-21 09:00:00');
 CREATE TABLE `invoice_items` (
 	`id` INTEGER PRIMARY KEY AUTOINCREMENT,
 	`invoice_id` INT NOT NULL,
@@ -113,7 +114,7 @@ CREATE TABLE `service_cancellations` (
 );
 DELETE FROM sqlite_sequence;
 INSERT INTO sqlite_sequence VALUES('migrations',8);
-INSERT INTO sqlite_sequence VALUES('users',1);
+INSERT INTO sqlite_sequence VALUES('users',2);
 INSERT INTO sqlite_sequence VALUES('services',3);
 INSERT INTO sqlite_sequence VALUES('invoices',3);
 INSERT INTO sqlite_sequence VALUES('tickets',3);
