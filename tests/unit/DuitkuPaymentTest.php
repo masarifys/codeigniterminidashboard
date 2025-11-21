@@ -94,10 +94,13 @@ final class DuitkuPaymentTest extends CIUnitTestCase
         $merchantCode = $config->merchantCode;
         $apiKey = $config->apiKey;
         
+        $merchantOrderId = 'TEST-123';
+        $amount = '10000';
+        
         $data = [
-            'merchantOrderId' => 'TEST-123',
-            'amount' => '10000',
-            'signature' => md5($merchantCode . '10000' . 'TEST-123' . $apiKey)
+            'merchantOrderId' => $merchantOrderId,
+            'amount' => $amount,
+            'signature' => md5($merchantCode . $amount . $merchantOrderId . $apiKey)
         ];
         
         $result = $this->duitku->validateCallback($data);
