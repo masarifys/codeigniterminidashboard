@@ -23,7 +23,7 @@ class DuitkuPayment
     {
         $merchantCode = $this->config->merchantCode;
         $merchantOrderId = $data['merchantOrderId'];
-        $paymentAmount = $data['paymentAmount'];
+        $paymentAmount = (string)intval($data['paymentAmount']); // Force integer to remove decimals
         $apiKey = $this->config->apiKey;
         
         $signature = hash('sha256', $merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
@@ -45,7 +45,7 @@ class DuitkuPayment
         
         $merchantCode = $this->config->merchantCode;
         $merchantOrderId = $data['merchantOrderId'];
-        $amount = $data['amount'];
+        $amount = (string)intval($data['amount']); // Force integer to remove decimals
         $apiKey = $this->config->apiKey;
         
         $calculatedSignature = md5($merchantCode . $amount . $merchantOrderId . $apiKey);
@@ -63,11 +63,13 @@ class DuitkuPayment
     {
         $url = $this->config->getBaseUrl() . '/paymentmethod/getpaymentmethod';
         
+        $intAmount = intval($amount); // Force integer to remove decimals
+        
         $params = [
             'merchantcode' => $this->config->merchantCode,
-            'amount' => $amount,
+            'amount' => $intAmount,
             'datetime' => date('Y-m-d H:i:s'),
-            'signature' => hash('sha256', $this->config->merchantCode . $amount . 'paymentmethod' . $this->config->apiKey)
+            'signature' => hash('sha256', $this->config->merchantCode . $intAmount . 'paymentmethod' . $this->config->apiKey)
         ];
         
         $response = $this->sendRequest($url, $params);
@@ -102,12 +104,21 @@ class DuitkuPayment
             return null;
         }
         
+        // Validate and convert payment amount to integer
+        // Zero amounts are rejected because payments must have a positive value
+        $originalAmount = $invoiceData['paymentAmount'];
+        $amount = intval($originalAmount);
+        if ($amount <= 0) {
+            log_message('error', 'Duitku: Invalid payment amount - original: ' . $originalAmount . ', converted: ' . $amount);
+            return null;
+        }
+        
         // Fix: Use correct full path for API endpoint
         $url = $this->config->getBaseUrl() . '/v2/inquiry';
         
         $params = [
             'merchantCode' => $this->config->merchantCode,
-            'paymentAmount' => (string) $invoiceData['paymentAmount'], // Convert to string
+            'paymentAmount' => (string)$amount, // Use already validated and converted amount
             'paymentMethod' => 'SP', // SP = User selects payment method
             'merchantOrderId' => $invoiceData['merchantOrderId'],
             'productDetails' => $invoiceData['productDetails'],
