@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class ServiceModel extends Model
+class ClientModel extends Model
 {
-    protected $table            = 'services';
+    protected $table            = 'clients';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'product_name', 'domain', 'price', 'billing_cycle', 'registration_date', 'due_date', 'ip_address', 'status', 'username', 'password', 'server', 'panel_url', 'registrar', 'domain_expiry_date', 'hosting_provider', 'hosting_renewal_date', 'ssl_status', 'ssl_expiry_date', 'uptime_monitor_url', 'uptime_status', 'last_uptime_check'];
+    protected $allowedFields    = ['user_id', 'business_name', 'contact_person', 'contact_email', 'contact_phone', 'domain', 'status', 'notes'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -28,7 +28,12 @@ class ServiceModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
+    protected $validationRules      = [
+        'user_id' => 'required|integer',
+        'business_name' => 'required|min_length[3]|max_length[255]',
+        'contact_email' => 'permit_empty|valid_email',
+        'status' => 'permit_empty|in_list[progress,revision,completed,cancelled]',
+    ];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
@@ -43,4 +48,20 @@ class ServiceModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function getClientWithUser($clientId)
+    {
+        return $this->select('clients.*, users.username, users.email as user_email, users.full_name')
+                    ->join('users', 'users.id = clients.user_id')
+                    ->where('clients.id', $clientId)
+                    ->first();
+    }
+
+    public function getClientsWithUser()
+    {
+        return $this->select('clients.*, users.username, users.email as user_email, users.full_name')
+                    ->join('users', 'users.id = clients.user_id')
+                    ->orderBy('clients.created_at', 'DESC')
+                    ->findAll();
+    }
 }

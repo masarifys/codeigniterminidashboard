@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CreateUsersTable extends Migration
+class CreateServicePackagesTable extends Migration
 {
     public function up()
     {
@@ -15,40 +15,45 @@ class CreateUsersTable extends Migration
                 'unsigned' => true,
                 'auto_increment' => true,
             ],
-            'username' => [
-                'type' => 'VARCHAR',
-                'constraint' => 50,
-            ],
-            'email' => [
-                'type' => 'VARCHAR',
-                'constraint' => 100,
-            ],
-            'password' => [
+            'name' => [
                 'type' => 'VARCHAR',
                 'constraint' => 255,
             ],
-            'full_name' => [
+            'description' => [
+                'type' => 'TEXT',
+                'null' => true,
+            ],
+            'storage' => [
                 'type' => 'VARCHAR',
                 'constraint' => 100,
+                'null' => true,
             ],
-            'role' => [
+            'bandwidth' => [
+                'type' => 'VARCHAR',
+                'constraint' => 100,
+                'null' => true,
+            ],
+            'price' => [
+                'type' => 'DECIMAL',
+                'constraint' => '10,2',
+            ],
+            'billing_cycle' => [
                 'type' => 'ENUM',
-                'constraint' => ['admin', 'client'],
-                'default' => 'client',
+                'constraint' => ['monthly', 'quarterly', 'semi-annually', 'annually'],
+                'default' => 'monthly',
+            ],
+            'features' => [
+                'type' => 'TEXT',
+                'null' => true,
+            ],
+            'notes' => [
+                'type' => 'TEXT',
+                'null' => true,
             ],
             'is_active' => [
                 'type' => 'TINYINT',
                 'constraint' => 1,
                 'default' => 1,
-            ],
-            'reset_token' => [
-                'type' => 'VARCHAR',
-                'constraint' => 255,
-                'null' => true,
-            ],
-            'reset_expires' => [
-                'type' => 'DATETIME',
-                'null' => true,
             ],
             'created_at' => [
                 'type' => 'DATETIME',
@@ -60,13 +65,11 @@ class CreateUsersTable extends Migration
             ],
         ]);
         $this->forge->addKey('id', true);
-        $this->forge->addUniqueKey('username');
-        $this->forge->addUniqueKey('email');
-        $this->forge->createTable('users');
+        $this->forge->createTable('service_packages');
     }
 
     public function down()
     {
-        $this->forge->dropTable('users');
+        $this->forge->dropTable('service_packages');
     }
 }

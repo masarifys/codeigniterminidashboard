@@ -8,6 +8,8 @@ use App\Models\InvoiceModel;
 use App\Models\TicketModel;
 use App\Models\InvoiceItemModel;
 use App\Models\TransactionModel;
+use App\Models\ReminderModel;
+use App\Models\ServicePackageModel;
 use CodeIgniter\Controller;
 
 class Client extends Controller
@@ -16,6 +18,8 @@ class Client extends Controller
     protected $serviceModel;
     protected $invoiceModel;
     protected $ticketModel;
+    protected $reminderModel;
+    protected $servicePackageModel;
 
     public function __construct()
     {
@@ -23,6 +27,8 @@ class Client extends Controller
         $this->serviceModel = new ServiceModel();
         $this->invoiceModel = new InvoiceModel();
         $this->ticketModel = new TicketModel();
+        $this->reminderModel = new ReminderModel();
+        $this->servicePackageModel = new ServicePackageModel();
         helper(['form', 'url']);
         
         // Check if user is logged in and is client
@@ -58,6 +64,9 @@ class Client extends Controller
                                               ->limit(5)
                                               ->findAll();
         
+        // Get upcoming reminders
+        $reminders = $this->reminderModel->getUserReminders($userId);
+        
         $data = [
             'title' => 'Client Dashboard',
             'user' => $this->userModel->find($userId),
@@ -65,7 +74,8 @@ class Client extends Controller
             'unpaidInvoices' => $unpaidInvoices,
             'pastDueInvoices' => $pastDueInvoices,
             'openTickets' => $openTickets,
-            'recentInvoices' => $recentInvoices
+            'recentInvoices' => $recentInvoices,
+            'reminders' => $reminders
         ];
 
         return view('client/dashboard', $data);
@@ -354,8 +364,17 @@ class Client extends Controller
             return redirect()->to('/client/services')->with('error', 'Service not found');
         }
         
-        // TODO: Implement upgrade logic
-        return redirect()->to('/client/service/' . $id)->with('info', 'Upgrade feature coming soon');
+        // Get available packages for upgrade
+        $packages = $this->servicePackageModel->getActivePackages();
+        
+        $data = [
+            'title' => 'Upgrade Service - ' . $service['product_name'],
+            'user' => $this->userModel->find($userId),
+            'service' => $service,
+            'packages' => $packages
+        ];
+        
+        return view('client/upgrade_service', $data);
     }
 
     public function renewService($id)

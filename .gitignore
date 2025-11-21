@@ -6,3 +6,5 @@ writable/logs/
 writable/session/
 writable/debugbar/
 .phpunit.result.cache
+vendor/composer/tmp-*.zip~
+composer.lock
