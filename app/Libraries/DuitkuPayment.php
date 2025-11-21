@@ -105,6 +105,7 @@ class DuitkuPayment
         }
         
         // Validate and convert payment amount to integer
+        // Zero amounts are rejected because payments must have a positive value
         $originalAmount = $invoiceData['paymentAmount'];
         $amount = intval($originalAmount);
         if ($amount <= 0) {
