@@ -31,7 +31,7 @@ final class DuitkuPaymentTest extends CIUnitTestCase
         $signature = $this->duitku->generateSignature($data);
         
         $this->assertIsString($signature);
-        $this->assertEquals(64, strlen($signature)); // SHA256 produces 64 char hex string
+        $this->assertEquals(32, strlen($signature)); // MD5 produces 32 char hex string
     }
     
     /**
@@ -147,5 +147,49 @@ final class DuitkuPaymentTest extends CIUnitTestCase
         $result = $this->duitku->validateCallback($data);
         
         $this->assertFalse($result);
+    }
+    
+    /**
+     * Test that generateSignature uses MD5 algorithm
+     */
+    public function testGenerateSignatureUsesMD5(): void
+    {
+        $data = [
+            'merchantOrderId' => 'TEST-123',
+            'paymentAmount' => '10000'
+        ];
+        
+        $signature = $this->duitku->generateSignature($data);
+        
+        // Verify signature matches MD5 pattern
+        $this->assertMatchesRegularExpression('/^[a-f0-9]{32}$/', $signature,
+            'Signature should be a 32-character MD5 hash');
+    }
+    
+    /**
+     * Test that signature generation order is correct
+     * Format: md5(merchantCode + paymentAmount + merchantOrderId + apiKey)
+     */
+    public function testSignatureGenerationOrder(): void
+    {
+        $config = $this->getConfigProperty($this->duitku);
+        
+        $data = [
+            'merchantOrderId' => 'INV-2025-0001',
+            'paymentAmount' => '100000'
+        ];
+        
+        $signature = $this->duitku->generateSignature($data);
+        
+        // Generate expected signature manually with correct order
+        $expectedSignature = md5(
+            $config->merchantCode . 
+            '100000' . // paymentAmount
+            'INV-2025-0001' . // merchantOrderId
+            $config->apiKey
+        );
+        
+        $this->assertEquals($expectedSignature, $signature,
+            'Signature should match format: md5(merchantCode + paymentAmount + merchantOrderId + apiKey)');
     }
 }

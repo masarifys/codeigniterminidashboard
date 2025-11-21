@@ -26,7 +26,7 @@ class DuitkuPayment
         $paymentAmount = (string)intval($data['paymentAmount']); // Force integer to remove decimals
         $apiKey = $this->config->apiKey;
         
-        $signature = hash('sha256', $merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
+        $signature = md5($merchantCode . $paymentAmount . $merchantOrderId . $apiKey);
         
         return $signature;
     }
@@ -69,7 +69,7 @@ class DuitkuPayment
             'merchantcode' => $this->config->merchantCode,
             'amount' => $intAmount,
             'datetime' => date('Y-m-d H:i:s'),
-            'signature' => hash('sha256', $this->config->merchantCode . $intAmount . 'paymentmethod' . $this->config->apiKey)
+            'signature' => md5($this->config->merchantCode . $intAmount . 'paymentmethod' . $this->config->apiKey)
         ];
         
         $response = $this->sendRequest($url, $params);
@@ -176,7 +176,7 @@ class DuitkuPayment
         $params = [
             'merchantCode' => $this->config->merchantCode,
             'merchantOrderId' => $merchantOrderId,
-            'signature' => hash('sha256', $this->config->merchantCode . $merchantOrderId . $this->config->apiKey)
+            'signature' => md5($this->config->merchantCode . $merchantOrderId . $this->config->apiKey)
         ];
         
         $response = $this->sendRequest($url, $params);
