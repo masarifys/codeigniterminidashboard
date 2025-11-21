@@ -17,6 +17,7 @@ class Auth extends Controller
 
     public function index()
     {
+        // Jika sudah login, arahkan ke dashboard
         if (session()->get('isLoggedIn')) {
             return $this->redirectToDashboard();
         }
@@ -25,46 +26,57 @@ class Auth extends Controller
 
     public function login()
     {
-        // Tambahkan log ini di awal method
-        log_message('debug', 'Auth::login() method called.');
-    
-        $username = $this->request->getPost('username');
-        $password = $this->request->getPost('password');
-    
-        // Log data yang diterima
-        log_message('debug', 'Username received: ' . $username);
-        log_message('debug', 'Password received: ' . $password); // Hati-hati di produksi!
+        log_message('debug', '===== LOGIN ATTEMPT START =====');
+
+        // Jika sudah login, tidak perlu proses lagi
         if (session()->get('isLoggedIn')) {
+            log_message('debug', 'User already logged in. Redirecting...');
             return $this->redirectToDashboard();
         }
 
+        // Proses hanya jika ada request POST
         if ($this->request->getMethod() === 'post') {
+            $username = $this->request->getPost('username');
+            $password = $this->request->getPost('password');
+
+            log_message('debug', 'POST data received. Username: ' . $username);
+
+            // Validasi input
             $rules = [
                 'username' => 'required',
                 'password' => 'required'
             ];
 
             if (!$this->validate($rules)) {
+                log_message('error', 'Validation failed: ' . json_encode($this->validator->getErrors()));
                 return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
             }
 
-            $username = $this->request->getPost('username');
-            $password = $this->request->getPost('password');
-
+            // Cari user di database
+            log_message('debug', 'Searching for user in database...');
             $user = $this->userModel->where('username', $username)->first();
 
-            // Use generic error message to prevent username enumeration
+            if ($user) {
+                log_message('debug', 'User found. ID: ' . $user['id'] . ', Role: ' . $user['role'] . ', Active: ' . $user['is_active']);
+            } else {
+                log_message('warning', 'User not found in database.');
+            }
+
+            // Verifikasi kredensial
             $isValidCredentials = $user && password_verify($password, $user['password']);
             
             if (!$isValidCredentials) {
+                log_message('error', 'Invalid credentials for username: ' . $username);
                 return redirect()->back()->withInput()->with('error', 'Invalid username or password');
             }
 
+            // Cek status aktif user
             if ($user['is_active'] != 1) {
+                log_message('warning', 'Account is inactive for username: ' . $username);
                 return redirect()->back()->withInput()->with('error', 'Account is inactive');
             }
 
-            // Set session
+            // Set session jika semua valid
             $sessionData = [
                 'id' => $user['id'],
                 'username' => $user['username'],
@@ -75,16 +87,14 @@ class Auth extends Controller
             ];
 
             session()->set($sessionData);
+            log_message('info', 'Session set successfully for user: ' . $user['username']);
+            log_message('debug', 'Session Data: ' . print_r(session()->get(), true));
 
-            // Redirect based on role
-            if ($user['role'] === 'admin') {
-                return redirect()->to('/admin/dashboard');
-            } else {
-                return redirect()->to('/client/dashboard');
-            }
+            log_message('info', 'Redirecting to dashboard...');
+            return $this->redirectToDashboard();
         }
 
-        // Show login form
+        // Tampilkan form login jika bukan request POST
         return view('auth/login');
     }
 
@@ -213,42 +223,42 @@ class Auth extends Controller
     }
     
     private function sendResetEmail($email, $fullName, $resetLink)
-{
-    try {
-        $gmailOAuth = new \App\Libraries\GmailOAuthService();
-        
-        // Check if Gmail OAuth is authorized
-        if (!$gmailOAuth->isAuthorized()) {
-            log_message('error', 'Gmail OAuth not authorized. Cannot send reset email.');
+    {
+        try {
+            $gmailOAuth = new \App\Libraries\GmailOAuthService();
+            
+            // Check if Gmail OAuth is authorized
+            if (!$gmailOAuth->isAuthorized()) {
+                log_message('error', 'Gmail OAuth not authorized. Cannot send reset email.');
+                return false;
+            }
+            
+            // Load email template
+            $message = view('emails/password_reset', [
+                'full_name' => $fullName,
+                'reset_link' => $resetLink
+            ]);
+            
+            // Send email via Gmail OAuth
+            $result = $gmailOAuth->sendEmail(
+                $email,
+                'Password Reset Request - Exputra Billing',
+                $message,
+                null,
+                'Exputra Billing'
+            );
+            
+            if ($result['success']) {
+                log_message('info', 'Password reset email sent via Gmail OAuth to: ' . $email . ', Message ID: ' . $result['message_id']);
+                return true;
+            } else {
+                log_message('error', 'Gmail OAuth failed to send email: ' . $result['error']);
+                return false;
+            }
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Gmail OAuth exception: ' . $e->getMessage());
             return false;
         }
-        
-        // Load email template
-        $message = view('emails/password_reset', [
-            'full_name' => $fullName,
-            'reset_link' => $resetLink
-        ]);
-        
-        // Send email via Gmail OAuth
-        $result = $gmailOAuth->sendEmail(
-            $email,
-            'Password Reset Request - Exputra Billing',
-            $message,
-            null,
-            'Exputra Billing'
-        );
-        
-        if ($result['success']) {
-            log_message('info', 'Password reset email sent via Gmail OAuth to: ' . $email . ', Message ID: ' . $result['message_id']);
-            return true;
-        } else {
-            log_message('error', 'Gmail OAuth failed to send email: ' . $result['error']);
-            return false;
-        }
-        
-    } catch (\Exception $e) {
-        log_message('error', 'Gmail OAuth exception: ' . $e->getMessage());
-        return false;
     }
-}
 }
