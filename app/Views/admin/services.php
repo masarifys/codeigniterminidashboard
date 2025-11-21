@@ -44,14 +44,15 @@
                                     </td>
                                     <td>
                                         <?php
+                                        $sslStatus = $service['ssl_status'] ?? 'inactive';
                                         $sslClass = [
                                             'active' => 'bg-success',
                                             'inactive' => 'bg-secondary',
                                             'expiring_soon' => 'bg-warning'
                                         ];
                                         ?>
-                                        <span class="badge <?= $sslClass[$service['ssl_status']] ?? 'bg-secondary' ?>">
-                                            <?= ucfirst(str_replace('_', ' ', $service['ssl_status'])) ?>
+                                        <span class="badge <?= $sslClass[$sslStatus] ?? 'bg-secondary' ?>">
+                                            <?= ucfirst(str_replace('_', ' ', $sslStatus)) ?>
                                         </span>
                                     </td>
                                     <td>

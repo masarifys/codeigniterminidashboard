@@ -13,17 +13,22 @@ class AdminPanelSeeder extends Seeder
         $adminExists = $userModel->where('role', 'admin')->first();
         
         if (!$adminExists) {
+            // WARNING: Change this password immediately in production!
+            // Default password is for development/testing only
+            $defaultPassword = 'Admin@123!Dev';
+            
             $userModel->insert([
                 'username' => 'admin',
                 'email' => 'admin@example.com',
-                'password' => password_hash('admin123', PASSWORD_DEFAULT),
+                'password' => password_hash($defaultPassword, PASSWORD_DEFAULT),
                 'full_name' => 'Admin User',
                 'role' => 'admin',
                 'is_active' => 1,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
             ]);
-            echo "Admin user created (username: admin, password: admin123)\n";
+            echo "Admin user created (username: admin, password: $defaultPassword)\n";
+            echo "WARNING: Change the admin password immediately!\n";
         }
 
         // Get test client user

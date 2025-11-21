@@ -74,14 +74,15 @@
                                     <td><?= esc($service['full_name']) ?></td>
                                     <td>
                                         <?php
+                                        $uptimeStatus = $service['uptime_status'] ?? 'unknown';
                                         $statusClass = [
                                             'up' => 'bg-success',
                                             'down' => 'bg-danger',
                                             'unknown' => 'bg-secondary'
                                         ];
                                         ?>
-                                        <span class="badge <?= $statusClass[$service['uptime_status']] ?? 'bg-secondary' ?>">
-                                            <?= strtoupper($service['uptime_status']) ?>
+                                        <span class="badge <?= $statusClass[$uptimeStatus] ?? 'bg-secondary' ?>">
+                                            <?= strtoupper($uptimeStatus) ?>
                                         </span>
                                     </td>
                                     <td>

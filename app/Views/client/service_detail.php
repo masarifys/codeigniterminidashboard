@@ -189,7 +189,7 @@
                     <div>
                         <?= date('d M Y', strtotime($service['domain_expiry_date'])) ?>
                         <?php
-                        $daysUntilExpiry = floor((strtotime($service['domain_expiry_date']) - time()) / 86400);
+                        $daysUntilExpiry = floor((strtotime($service['domain_expiry_date']) - time()) / (60 * 60 * 24));
                         if ($daysUntilExpiry <= 30 && $daysUntilExpiry > 0):
                         ?>
                             <span class="badge bg-warning text-dark">Expires in <?= $daysUntilExpiry ?> days</span>
@@ -213,7 +213,7 @@
                     <div>
                         <?= date('d M Y', strtotime($service['hosting_renewal_date'])) ?>
                         <?php
-                        $daysUntilRenewal = floor((strtotime($service['hosting_renewal_date']) - time()) / 86400);
+                        $daysUntilRenewal = floor((strtotime($service['hosting_renewal_date']) - time()) / (60 * 60 * 24));
                         if ($daysUntilRenewal <= 30 && $daysUntilRenewal > 0):
                         ?>
                             <span class="badge bg-warning text-dark">Renews in <?= $daysUntilRenewal ?> days</span>

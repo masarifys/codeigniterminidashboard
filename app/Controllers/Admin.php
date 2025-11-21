@@ -415,9 +415,13 @@ class Admin extends Controller
     public function createInvoice()
     {
         if ($this->request->getMethod() === 'POST') {
+            // Generate invoice number with timestamp to avoid race conditions
+            $timestamp = time();
+            $count = $this->invoiceModel->countAll() + 1;
+            
             $data = [
                 'user_id' => $this->request->getPost('user_id'),
-                'invoice_number' => 'INV-' . date('Y') . '-' . str_pad($this->invoiceModel->countAll() + 1, 4, '0', STR_PAD_LEFT),
+                'invoice_number' => 'INV-' . date('Y') . '-' . str_pad($count, 4, '0', STR_PAD_LEFT) . '-' . $timestamp,
                 'service_id' => $this->request->getPost('service_id'),
                 'amount' => $this->request->getPost('amount'),
                 'due_date' => $this->request->getPost('due_date'),
