@@ -105,9 +105,10 @@ class DuitkuPayment
         }
         
         // Validate and convert payment amount to integer
-        $amount = intval($invoiceData['paymentAmount']);
+        $originalAmount = $invoiceData['paymentAmount'];
+        $amount = intval($originalAmount);
         if ($amount <= 0) {
-            log_message('error', 'Duitku: Invalid payment amount: ' . $amount);
+            log_message('error', 'Duitku: Invalid payment amount - original: ' . $originalAmount . ', converted: ' . $amount);
             return null;
         }
         
@@ -116,7 +117,7 @@ class DuitkuPayment
         
         $params = [
             'merchantCode' => $this->config->merchantCode,
-            'paymentAmount' => (string)intval($invoiceData['paymentAmount']), // Convert to integer then string
+            'paymentAmount' => (string)$amount, // Use already validated and converted amount
             'paymentMethod' => 'SP', // SP = User selects payment method
             'merchantOrderId' => $invoiceData['merchantOrderId'],
             'productDetails' => $invoiceData['productDetails'],
