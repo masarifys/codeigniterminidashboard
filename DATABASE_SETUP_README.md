@@ -135,7 +135,14 @@ invoices (1) ──── (many) transactions
 
 The SQL files include sample data for testing:
 
-### Test User
+### Admin User
+- **Username:** admin
+- **Password:** admin123
+- **Email:** admin@example.com
+- **Role:** admin
+- **⚠️ WARNING:** Change this password immediately in production!
+
+### Test Client User
 - **Username:** testclient
 - **Password:** password123
 - **Email:** client@test.com
@@ -219,8 +226,8 @@ After setting up the database:
    ```
 
 3. Login with test credentials:
-   - Username: `testclient`
-   - Password: `password123`
+   - **Admin:** Username: `admin`, Password: `admin123` ⚠️
+   - **Client:** Username: `testclient`, Password: `password123`
 
 4. Explore the client dashboard features:
    - Dashboard with statistics

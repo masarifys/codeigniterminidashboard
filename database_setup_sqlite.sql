@@ -172,32 +172,39 @@ CREATE INDEX idx_service_cancellations_status ON service_cancellations(status);
 -- Sample Data (Test Data)
 -- ============================================
 
+-- Insert admin user
+-- Password: admin123 (hashed with bcrypt)
+-- WARNING: Change this password immediately in production!
+INSERT INTO users (username, email, password, full_name, role, is_active, created_at, updated_at) 
+VALUES 
+('admin', 'admin@example.com', '$2y$10$5X2z9MVb4SkvW2YyaDnukO3VZZVo6acVA9bSj1UgrB5K05hokSdMq', 'Admin User', 'admin', 1, datetime('now'), datetime('now'));
+
 -- Insert test client user
 -- Password: password123 (hashed with bcrypt)
 INSERT INTO users (username, email, password, full_name, role, is_active, created_at, updated_at) 
 VALUES 
-('testclient', 'client@test.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Test Client User', 'client', 1, datetime('now'), datetime('now'));
+('testclient', 'client@test.com', '$2y$10$Xvdp6TGZA5Oj5RS6r9mQAOCcyb88WsUBlfhOXTwdFUvBjUxW7GzsW', 'Test Client User', 'client', 1, datetime('now'), datetime('now'));
 
 -- Insert sample services
 INSERT INTO services (user_id, product_name, domain, price, billing_cycle, registration_date, due_date, ip_address, status, created_at, updated_at) 
 VALUES 
-(1, 'Unlimited L', 'example.com', 1680000.00, 'annually', '2025-11-10', '2026-01-09', '192.168.1.100', 'active', datetime('now'), datetime('now')),
-(1, 'VPS Standard', 'subdomain.example.com', 250000.00, 'monthly', '2025-10-15', '2025-12-15', '192.168.1.101', 'active', datetime('now'), datetime('now')),
-(1, 'Shared Hosting', 'test.example.com', 150000.00, 'quarterly', '2025-09-01', '2025-12-01', NULL, 'pending', datetime('now'), datetime('now'));
+(2, 'Unlimited L', 'example.com', 1680000.00, 'annually', '2025-11-10', '2026-01-09', '192.168.1.100', 'active', datetime('now'), datetime('now')),
+(2, 'VPS Standard', 'subdomain.example.com', 250000.00, 'monthly', '2025-10-15', '2025-12-15', '192.168.1.101', 'active', datetime('now'), datetime('now')),
+(2, 'Shared Hosting', 'test.example.com', 150000.00, 'quarterly', '2025-09-01', '2025-12-01', NULL, 'pending', datetime('now'), datetime('now'));
 
 -- Insert sample invoices
 INSERT INTO invoices (user_id, invoice_number, service_id, amount, due_date, paid_date, status, created_at, updated_at) 
 VALUES 
-(1, 'INV-2025-0001', 1, 1680000.00, '2025-11-20', NULL, 'unpaid', datetime('now'), datetime('now')),
-(1, 'INV-2025-0002', 2, 250000.00, '2025-11-15', NULL, 'past_due', datetime('now'), datetime('now')),
-(1, 'INV-2025-0003', 3, 150000.00, '2025-10-15', '2025-10-14', 'paid', datetime('now'), datetime('now'));
+(2, 'INV-2025-0001', 1, 1680000.00, '2025-11-20', NULL, 'unpaid', datetime('now'), datetime('now')),
+(2, 'INV-2025-0002', 2, 250000.00, '2025-11-15', NULL, 'past_due', datetime('now'), datetime('now')),
+(2, 'INV-2025-0003', 3, 150000.00, '2025-10-15', '2025-10-14', 'paid', datetime('now'), datetime('now'));
 
 -- Insert sample tickets
 INSERT INTO tickets (user_id, subject, department, priority, status, created_at, updated_at) 
 VALUES 
-(1, 'Server not responding', 'Technical Support', 'high', 'open', datetime('now'), datetime('now')),
-(1, 'Question about billing', 'Billing', 'medium', 'answered', datetime('now'), datetime('now')),
-(1, 'Need help with setup', 'Technical Support', 'low', 'closed', datetime('now'), datetime('now'));
+(2, 'Server not responding', 'Technical Support', 'high', 'open', datetime('now'), datetime('now')),
+(2, 'Question about billing', 'Billing', 'medium', 'answered', datetime('now'), datetime('now')),
+(2, 'Need help with setup', 'Technical Support', 'low', 'closed', datetime('now'), datetime('now'));
 
 -- Insert sample invoice items
 INSERT INTO invoice_items (invoice_id, description, amount, created_at, updated_at) 
@@ -209,7 +216,7 @@ VALUES
 -- Insert sample transaction (for paid invoice)
 INSERT INTO transactions (invoice_id, user_id, transaction_id, gateway, amount, transaction_date, status, created_at, updated_at) 
 VALUES 
-(3, 1, 'TRX-2025-000003', 'BCA Virtual Account', 150000.00, '2025-10-14 10:30:00', 'success', datetime('now'), datetime('now'));
+(3, 2, 'TRX-2025-000003', 'BCA Virtual Account', 150000.00, '2025-10-14 10:30:00', 'success', datetime('now'), datetime('now'));
 
 -- ============================================
 -- Verification Queries
@@ -228,6 +235,12 @@ SELECT
 -- ============================================
 -- Test Login Credentials
 -- ============================================
--- Username: testclient
--- Password: password123
+-- Admin User:
+--   Username: admin
+--   Password: admin123
+--   WARNING: Change this password immediately in production!
+--
+-- Test Client User:
+--   Username: testclient
+--   Password: password123
 -- ============================================

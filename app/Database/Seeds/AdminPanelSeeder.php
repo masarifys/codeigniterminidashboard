@@ -15,12 +15,12 @@ class AdminPanelSeeder extends Seeder
         if (!$adminExists) {
             // WARNING: Change this password immediately in production!
             // Default password is for development/testing only
-            $defaultPassword = 'Admin@123!Dev';
+            $defaultPassword = 'admin123';
             
             $userModel->insert([
                 'username' => 'admin',
                 'email' => 'admin@example.com',
-                'password' => password_hash($defaultPassword, PASSWORD_DEFAULT),
+                'password' => $defaultPassword,
                 'full_name' => 'Admin User',
                 'role' => 'admin',
                 'is_active' => 1,
