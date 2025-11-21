@@ -29,39 +29,53 @@ class Auth extends Controller
             return $this->redirectToDashboard();
         }
 
-        if ($this->request->getMethod() === 'POST') {
+        if ($this->request->getMethod() === 'post') {
             $rules = [
                 'username' => 'required',
                 'password' => 'required'
             ];
 
             if (!$this->validate($rules)) {
-                return view('auth/login', ['validation' => $this->validator]);
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
             }
 
             $username = $this->request->getPost('username');
             $password = $this->request->getPost('password');
 
-            $user = $this->userModel->getUserByUsername($username);
+            $user = $this->userModel->where('username', $username)->first();
 
-            if ($user && $this->userModel->verifyPassword($password, $user['password'])) {
-                $sessionData = [
-                    'id' => $user['id'],
-                    'username' => $user['username'],
-                    'email' => $user['email'],
-                    'full_name' => $user['full_name'],
-                    'role' => $user['role'],
-                    'isLoggedIn' => true
-                ];
-                session()->set($sessionData);
+            // Use generic error message to prevent username enumeration
+            $isValidCredentials = $user && password_verify($password, $user['password']);
+            
+            if (!$isValidCredentials) {
+                return redirect()->back()->withInput()->with('error', 'Invalid username or password');
+            }
 
-                return $this->redirectToDashboard();
+            if ($user['is_active'] != 1) {
+                return redirect()->back()->withInput()->with('error', 'Account is inactive');
+            }
+
+            // Set session
+            $sessionData = [
+                'id' => $user['id'],
+                'username' => $user['username'],
+                'email' => $user['email'],
+                'full_name' => $user['full_name'],
+                'role' => $user['role'],
+                'isLoggedIn' => true
+            ];
+
+            session()->set($sessionData);
+
+            // Redirect based on role
+            if ($user['role'] === 'admin') {
+                return redirect()->to('/admin/dashboard');
             } else {
-                session()->setFlashdata('error', 'Invalid username or password');
-                return view('auth/login');
+                return redirect()->to('/client/dashboard');
             }
         }
 
+        // Show login form
         return view('auth/login');
     }
 

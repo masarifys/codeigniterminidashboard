@@ -1,45 +1,16 @@
-<<<<<<< HEAD
-# CodeIgniter 4 Framework
+# CodeIgniter Mini Dashboard
 
-## What is CodeIgniter?
+A lightweight billing and client management dashboard built with CodeIgniter 4.
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## Features
 
-This repository holds the distributable version of the framework.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
-
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
-
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
-
-## Important Change with index.php
-
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
-
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
-
-**Please** read the user guide for a better explanation of how CI4 works!
-
-## Repository Management
-
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
-
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
-
-## Contributing
-
-We welcome contributions from the community.
-
-Please read the [*Contributing to CodeIgniter*](https://github.com/codeigniter4/CodeIgniter4/blob/develop/CONTRIBUTING.md) section in the development repository.
+- User authentication (Admin and Client roles)
+- Client management
+- Service and package management
+- Invoice generation and payment tracking
+- Ticket system
+- Gmail OAuth integration for email notifications
+- Duitku payment gateway integration
 
 ## Server Requirements
 
@@ -47,19 +18,96 @@ PHP version 8.1 or higher is required, with the following extensions installed:
 
 - [intl](http://php.net/manual/en/intl.requirements.php)
 - [mbstring](http://php.net/manual/en/mbstring.installation.php)
+- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) for MySQL database
+- [libcurl](http://php.net/manual/en/curl.requirements.php) for HTTP requests
+- json (enabled by default)
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> - The end of life date for PHP 8.1 will be December 31, 2025.
+## Installation
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+1. Clone the repository:
+```bash
+git clone https://github.com/masarifys/codeigniterminidashboard.git
+cd codeigniterminidashboard
+```
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
-=======
-# codeigniterminidashboard
-codeigniterminidashboard
->>>>>>> 8b1c2fda47f5743ef9e2fbb9011bf38d96d47715
+2. Install dependencies (if needed):
+```bash
+composer install
+```
+
+3. Configure your database and environment settings in `.env` file (copy from `env`):
+```bash
+cp env .env
+```
+
+Edit `.env` and configure:
+- Database credentials
+- Base URL
+- Encryption key
+
+4. Run database migrations:
+```bash
+php spark migrate
+```
+
+5. Seed the database with initial data (optional):
+```bash
+php spark db:seed AdminPanelSeeder
+```
+
+## Clean URLs Configuration
+
+This application is configured with clean URLs (without index.php). Make sure:
+
+1. **Apache mod_rewrite** is enabled:
+```bash
+sudo a2enmod rewrite
+sudo systemctl restart apache2
+```
+
+2. **Root `.htaccess`** redirects to public folder (already configured)
+
+3. **Public `.htaccess`** removes index.php from URLs (already configured)
+
+4. **App config** has `$indexPage = ''` (already configured in `app/Config/App.php`)
+
+5. Your Apache virtual host should point to the `public` folder:
+```apache
+DocumentRoot /path/to/project/public
+```
+
+## Usage
+
+### Default Login
+
+After seeding the database, you can login with:
+- **Admin**: Check seeder for default credentials
+- **Client**: Register a new account or use seeded credentials
+
+### Authentication
+
+The application uses session-based authentication with the following features:
+- Secure password hashing
+- Account activation status check
+- Role-based dashboard redirects
+- Password reset functionality
+
+### URLs
+
+All URLs are clean without index.php:
+- Login: `https://yourdomain.com/auth/login`
+- Dashboard: `https://yourdomain.com/admin/dashboard` or `https://yourdomain.com/client/dashboard`
+- Logout: `https://yourdomain.com/auth/logout`
+
+## Security Features
+
+- CSRF protection enabled
+- XSS filtering
+- SQL injection protection via query builder
+- Secure password hashing with bcrypt
+- Security headers configured in .htaccess
+- Session security
+
+## About CodeIgniter 4
+
+This project is built on CodeIgniter 4, a modern PHP framework. More information can be found at the [official site](https://codeigniter.com).
