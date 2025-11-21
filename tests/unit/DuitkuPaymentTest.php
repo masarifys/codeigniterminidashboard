@@ -100,7 +100,7 @@ final class DuitkuPaymentTest extends CIUnitTestCase
         $data = [
             'merchantOrderId' => $merchantOrderId,
             'amount' => $amount,
-            'signature' => md5($merchantCode . $amount . $merchantOrderId . $apiKey)
+            'signature' => md5($merchantCode . $merchantOrderId . $amount . $apiKey)
         ];
         
         $result = $this->duitku->validateCallback($data);
@@ -168,7 +168,7 @@ final class DuitkuPaymentTest extends CIUnitTestCase
     
     /**
      * Test that signature generation order is correct
-     * Format: md5(merchantCode + paymentAmount + merchantOrderId + apiKey)
+     * Format: md5(merchantCode + merchantOrderId + paymentAmount + apiKey)
      */
     public function testSignatureGenerationOrder(): void
     {
@@ -185,12 +185,12 @@ final class DuitkuPaymentTest extends CIUnitTestCase
         // Uses same data values to ensure consistency
         $expectedSignature = md5(
             $config->merchantCode . 
-            $data['paymentAmount'] . 
             $data['merchantOrderId'] . 
+            $data['paymentAmount'] . 
             $config->apiKey
         );
         
         $this->assertEquals($expectedSignature, $signature,
-            'Signature should match format: md5(merchantCode + paymentAmount + merchantOrderId + apiKey)');
+            'Signature should match format: md5(merchantCode + merchantOrderId + paymentAmount + apiKey)');
     }
 }
